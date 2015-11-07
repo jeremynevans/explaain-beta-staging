@@ -1,0 +1,530 @@
+/* Some Angula Material Stuff */
+
+.md-toolbar-tools h1 {
+    font-size: inherit;
+    font-weight: inherit;
+    margin: inherit;
+}
+
+.tabsdemoDynamicHeight md-content {
+    background-color: transparent !important;
+}
+
+.tabsdemoDynamicHeight md-content md-tabs {
+    background: #f6f6f6;
+    border: 1px solid #e1e1e1;
+}
+
+.tabsdemoDynamicHeight md-content md-tabs md-tabs-canvas {
+    background: white;
+}
+
+.tabsdemoDynamicHeight md-content h1:first-child {
+    margin-top: 0;
+}
+
+.buttondemoBasicUsage section {
+    background: #f7f7f7;
+    border-radius: 3px;
+    text-align: center;
+    margin: 1em;
+    position: relative !important;
+    padding-bottom: 10px;
+}
+
+.buttondemoBasicUsage md-content {
+    margin-right: 7px;
+}
+
+.buttondemoBasicUsage section .md-button {
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+.buttondemoBasicUsage .label {
+    position: absolute;
+    bottom: 5px;
+    left: 7px;
+    font-size: 14px;
+    opacity: 0.54;
+}
+
+md-toast {
+    position: fixed;
+}
+
+md-toast.md-top {
+    right: 165px;
+}
+
+
+/* Main Explaain CSS */
+
+html,
+body {
+    min-height: 100%;
+    /*background: #eee;*/
+    font-family: 'Lato', sans-serif;
+    line-height: 1.5em;
+    font-size: 16px;
+    background: url(https://www.evernote.com/redesign/global/img/page-bg-tile.jpg) center;
+    -webkit-background-size: 50px 50px;
+    -moz-background-size: 50px 50px;
+    -o-background-size: 50px 50px;
+    background-size: 50px 50px;
+}
+
+md-input-container.md-default-theme .md-input {
+    font-family: 'Lato', sans-serif;
+}
+
+
+/* Main Page Action Buttons */
+
+.action-icon {
+    opacity: 0.4;
+    outline: 0;
+}
+
+.action-icon:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.material-icons.toggle-login {
+    position: fixed;
+    top: 21px;
+    right: 20px;
+    font-size: 40px;
+    line-height: 23px;
+}
+
+.material-icons.toggle-login.login-true {
+    color: blue;
+}
+
+.material-icons.edit-mode {
+    position: fixed;
+    top: 20px;
+    right: 70px;
+}
+
+.material-icons.edit-mode.edit-mode-true {
+    color: #ff6e73;
+}
+
+.material-icons.refresh-all {
+    position: fixed;
+    top: 20px;
+    right: 105px;
+    color: green;
+}
+
+.new-card {
+    position: fixed;
+    top: 20px;
+    right: 140px;
+    color: orange;
+}
+
+.new-card .dropdown-menu {
+    top: 25px;
+    right: 0px;
+    left: auto;
+}
+
+.login-image {
+    position: fixed;
+    top: 12px;
+    right: 20px;
+    height: 40px;
+    width: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+
+/* Main Logo & Card Container */
+
+h1.logo {
+    text-align: center;
+    font-size: 5em;
+    margin: 0;
+    padding: 0.7em 0 0.6em 0;
+    text-transform: lowercase;
+    font-weight: 800;
+    color: #ff6e73;
+    letter-spacing: -3px;
+}
+
+ul.cards {
+    width: 90%;
+    max-width: 550px;
+    margin: auto;
+    padding: 0;
+    list-style-type: none;
+    z-index: 1000;
+}
+
+
+/* Spinner */
+
+ul.cards .spinner {
+    z-index: 200;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 50px auto;
+    height: 60px;
+    text-align: center;
+    font-size: 10px;
+}
+
+.spinner > div {
+    background-color: #ff6e73;
+    height: 100%;
+    width: 10px;
+    display: inline-block;
+    -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+    animation: sk-stretchdelay 1.2s infinite ease-in-out;
+}
+
+.spinner .rect2 {
+    -webkit-animation-delay: -1.1s;
+    animation-delay: -1.1s;
+}
+
+.spinner .rect3 {
+    -webkit-animation-delay: -1.0s;
+    animation-delay: -1.0s;
+}
+
+.spinner .rect4 {
+    -webkit-animation-delay: -0.9s;
+    animation-delay: -0.9s;
+}
+
+.spinner .rect5 {
+    -webkit-animation-delay: -0.8s;
+    animation-delay: -0.8s;
+}
+
+@-webkit-keyframes sk-stretchdelay {
+    0%, 40%, 100% {
+        -webkit-transform: scaleY(0.4)
+    }
+    20% {
+        -webkit-transform: scaleY(1.0)
+    }
+}
+
+@keyframes sk-stretchdelay {
+    0%, 40%, 100% {
+        transform: scaleY(0.4);
+        -webkit-transform: scaleY(0.4);
+    }
+    20% {
+        transform: scaleY(1.0);
+        -webkit-transform: scaleY(1.0);
+    }
+}
+
+
+/* Cards */
+
+li.card {
+    z-index: 1000 !important;
+    position: absolute;
+    width: 100%;
+    max-width: 550px;
+    box-sizing: border-box;
+    margin: 2em 0;
+    margin-top: -500px;
+    padding: 1.5em 1.5em 1.1em 1.5em;
+    overflow: hidden;
+    list-style: none;
+    border-radius: 0.5em;
+    background: white;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+    -webkit-transition: margin 0.5s;
+    transition: margin 0.5s;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, .3);
+}
+
+.ng-move,
+.ng-enter,
+.ng-leave {
+    -webkit-transition: all linear 0.3s;
+    transition: all linear 0.3s;
+}
+
+.ng-leave.ng-leave-active,
+.ng-move,
+.ng-enter {
+    opacity: 0;
+    max-height: 0;
+}
+
+.ng-leave,
+.ng-move.ng-move-active,
+.ng-enter.ng-enter-active {
+    opacity: 1;
+    max-height: 40px;
+}
+
+.card .image {
+    object-fit: cover;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+}
+
+.card .header-image,
+.card .header-text {
+    display: inline-block;
+    vertical-align: middle;
+    /*margin-bottom: 10px;*/
+}
+
+.card .header-text {
+    margin: 0 0 0 10px;
+}
+
+.card .header-text h3,
+.card .header-text h4 {
+    margin: 0;
+}
+
+.card .header-text h3 {
+    font-weight: bold;
+    font-size: 1.17em;
+}
+
+.card .header-text h4 {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5em;
+}
+
+.card .bio,
+.card .text {
+    margin-top: 1em;
+}
+
+.card .bio a {
+    color: inherit;
+    text-decoration: none;
+    background-color: #eee;
+    border: #eee solid 1px;
+    border-left: 3px #eee solid;
+    border-right: 3px #eee solid;
+}
+
+.card .bio a:hover {
+    color: inherit;
+    text-decoration: none;
+    background-color: #FED3D4;
+    border: #FED3D4 solid 1px;
+    border-left: 3px #FED3D4 solid;
+    border-right: 3px #FED3D4 solid;
+}
+
+.card img.quote {
+    float: left;
+    width: 30px;
+    margin-right: 20px;
+    opacity: 0.5;
+}
+
+.card .text.quote {
+    margin-bottom: 1em;
+    font-style: italic;
+}
+
+.card .text.quote .text {
+    min-height: 70px;
+}
+
+.card .display-fields.quote .profile-header {
+    text-align: right;
+}
+
+.card .display-fields.quote .profile-header .header-text {
+    text-align: left;
+}
+
+.card .display-fields.quote .profile-header h2 {
+    font-size: 1em;
+}
+
+.card .display-fields.quote .profile-header img.image {
+    widtH: 60px;
+    height: 60px;
+}
+
+.card .input-group {
+    margin: 0.2em;
+}
+
+.card button.keyword {
+    cursor: default;
+    margin: 0.2em;
+}
+
+.card button.keyword span.badge {
+    cursor: pointer;
+}
+
+.card button.keyword span.badge:hover {
+    background: lightgrey;
+}
+
+.card p.credits {
+    margin: 0;
+}
+
+.card .credits-footer.expanded-false:hover {
+    background: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.card .author {
+    color: #666;
+    display: inline-block;
+    width: 50%;
+    margin-top: 15px;
+}
+
+.card .author-image,
+.card .author-text {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 2px;
+}
+
+.card a:hover .author-image,
+.card a:hover .author-text {
+    opacity: 0.7;
+}
+
+.card a, .card a div, .card a h1, .card a h2, .card a h3, .card a h4, .card a h5, .card a h6, .card a p {
+    color: black;
+}
+
+.card .author-image {
+    display: inline-block;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
+.card .credits {
+    text-align: right;
+    text-transform: uppercase;
+    color: #999;
+    font-size: 0.9em;
+    display: inline-block;
+    width: 49%;
+    vertical-align: middle;
+}
+
+.card .credits span.author,
+.card .credits span.sources,
+.card .credits span.sources a {
+    color: #666;
+    text-decoration: none;
+}
+
+.card .credits span a:hover {
+    color: #333;
+}
+
+.card .credits span.author {
+    font-weight: bold;
+}
+
+.card .close,
+.card .edit,
+.card .delete,
+.card .claim {
+    float: right;
+    margin: -14px -16px;
+    text-decoration: none;
+    color: #aaa;
+}
+
+.card .claim {
+    margin: -14px 9px;
+    font-size: 1.25em;
+}
+
+.card .edit {
+    margin: -14px 8px;
+    font-size: 1.2em;
+}
+
+.card .edit:hover {
+    color: blue;
+    opacity: 0.5;
+}
+
+.card .delete {
+    margin: -14px 32px;
+    font-size: 1.2em;
+}
+
+.card .delete:hover {
+    color: red;
+    opacity: 0.5;
+}
+
+.done-true {
+    text-decoration: line-through;
+    color: grey;
+}
+
+.card md-input-container {
+    padding: 8px 0;
+}
+
+.card .md-fab.md-primary i {
+    font-size: 1.6em;
+    line-height: 2.5em;
+    margin-left: 1px;
+}
+
+.embed-container {
+    margin: 1em 0 0 0;
+}
+
+.md-autocomplete-suggestions li {
+    line-height: inherit;
+    padding-top: 8px;
+}
+
+.md-autocomplete-suggestions .image {
+    object-fit: cover;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+.md-autocomplete-suggestions .header-image,
+.md-autocomplete-suggestions .header-text {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.md-autocomplete-suggestions .header-text {
+    margin: 0 0 0 10px;
+}
+
+.md-autocomplete-suggestions .header-text h3,
+.md-autocomplete-suggestions .header-text h4 {
+    margin: 0;
+}
+
+.md-autocomplete-suggestions .header-text h4 {
+    font-weight: 400;
+    color: #777;
+}
