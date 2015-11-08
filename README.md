@@ -1,3 +1,9 @@
+# Explaain Beta
+
+Welcome to the Explaain Beta version!
+
+See below for the documentation for node-js-getting-started, which is where this originated. 
+
 # node-js-getting-started
 
 A barebones Node.js app using [Express 4](http://expressjs.com/).
