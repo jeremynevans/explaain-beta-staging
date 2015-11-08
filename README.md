@@ -2,6 +2,8 @@
 
 Welcome to the Explaain Beta version!
 
+Check out the app at [explaain.com/beta](http://explaain.com/beta)
+
 See below for the documentation for node-js-getting-started, which is where this originated. 
 
 ---
