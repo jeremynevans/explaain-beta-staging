@@ -34,11 +34,11 @@
     <h1 class="logo">Explaain</h1>
     <div ng-user-interface>    
         <!-- Initial login modal -->
-        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" ng-click="bootUp(false)" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">Welcome to Explaain!</h4>
               </div>
               <div class="modal-body">
