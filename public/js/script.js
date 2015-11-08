@@ -1,3 +1,5 @@
+$('#myModal').modal();
+
 function clog(myText) {
     //console.log(myText);
 };
@@ -26,10 +28,7 @@ app.controller('MainCtrl', ['$scope', '$timeout', '$http', '$mdToast', '$mdSiden
     Cards.checkServiceWorks();
     mainScope = $scope;
 
-    Cards.connectToFirebase();
-    Cards.connectToAlgolia();
-    Cards.reorderKeywords(); //Shouldn't be needed once SetWIthPriority kicks in properly
-    Cards.initialiseFirstCard();
+    // Cards.bootUpCards();
 
     $scope.cards = Cards.cards;
     $scope.hits = Cards.hits;
@@ -86,6 +85,9 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         loggedIn: false,
         loginData: {},
         editMode: false,
+        thisTeam: '',
+
+        usingTeams: false,
 
         firebaseRef: null,
         firebaseCards: null,
@@ -116,15 +118,56 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: checkServiceWorks');
             //console.log('Service works!');
         },
+        
+        bootUp: function(usingTeams) {
+            service.insertSpinner();
+            service.usingTeams = usingTeams;
+            service.connectToFirebase();
+            if (usingTeams) {
+                service.logMeIn('twitter').then(function() {
+                    service.getThisUserTeam().then(function(team) {
+                        service.thisTeam = team;
+                        service.bootUpCards();
+                    });
+                });
+            } else {
+                service.bootUpCards();
+            }
+        },
+        
+        bootUpCards: function() {
+            service.connectToFirebaseCards();
+            service.connectToAlgolia();
+            service.reorderKeywords(); //Shouldn't be needed once SetWIthPriority kicks in properly
+        },
+        
+        insertSpinner: function() {
+            $('ul.cards').append('<div id="spinner" class="spinner"><div class="rect1"></div> <div class="rect2"></div> <div class="rect3"></div> <div class="rect4"></div> <div class="rect5"></div></div>');
+        },
 
         connectToFirebase: function() {
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: connectToFirebase');
-            service.firebaseRef = new Firebase(firebaseRoot); /* global Firebase */ /* global firebaseRoot */
-
+            if (service.usingTeams) {
+                service.firebaseRef = new Firebase(firebaseTeams); /* global Firebase */ /* global firebaseRoot */
+                service.firebaseUsersRef = service.firebaseRef;
+            } else {
+                service.firebaseRef = new Firebase(firebaseRoot); /* global Firebase */ /* global firebaseRoot */
+                service.firebaseUsersRef = service.firebaseRef;
+            }
+            
+            service.firebaseUsers = service.firebaseUsersRef.child("users");
+        },
+        
+        connectToFirebaseCards: function() {
+            if (service.usingTeams) {
+                service.firebaseRef = service.firebaseRef.child("teams/" + service.thisTeam);
+            }
             service.firebaseCards = service.firebaseRef.child("cards");
             service.firebaseIdentities = service.firebaseRef.child("identities");
             service.firebaseKeywords = service.firebaseRef.child("keywords");
-            service.firebaseUsers = service.firebaseRef.child("users");
+            service.getInitialIdentity().then(function() {
+                service.initialiseFirstCard();
+            });
         },
 
         connectToAlgolia: function() { // Needs to be called on page load
@@ -168,7 +211,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: initialiseFirstCard');
             //console.log('opening first card');
             //console.log(initialIdentity);
-            service.open(initialIdentity, false); /* global initialIdentity */
+            service.open(service.initialIdentity, false);
         },
 
         removeSpinner: function() {
@@ -242,6 +285,20 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             })[0];
             //console.log(user);
             return user;
+        },
+        
+        getInitialIdentity: function() {
+            return $q(function(resolve, reject) {
+                if (service.usingTeams) {
+                    service.firebaseRef.child("settings").once('value', function(snapshot) {
+                        service.initialIdentity = snapshot.val().initialIdentity;
+                        resolve();
+                    });
+                } else {
+                    service.initialIdentity = initialIdentity;
+                    resolve();
+                }
+            });
         },
 
         getCard: function(key, reImport) { // reImport should be false if this is being called constantly
@@ -324,12 +381,32 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                         var promise = service.importUser(key);
                         promise.then(function(tempUser) {
                             user = tempUser;
+                            console.log('user');
+                            console.log(user);
                             resolve(user);
                         });
                     }
                 }
             });
 
+        },
+        
+        getThisUserTeam: function() {
+            return $q(function(resolve, reject) {
+                var key = service.loginData.uid;
+                service.getUserTeam(key).then(function(team) {
+                    resolve(team);
+                });
+            });
+        },
+        
+        getUserTeam: function(key) {
+            return $q(function(resolve, reject) {
+                service.getUser(key).then(function(user) {
+                    var team = user.data.teams[0];
+                    resolve(team);
+                });
+            });
         },
 
         importCard: function(key) {
@@ -804,7 +881,6 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             service.cards[pos].editing = !service.cards[pos].editing;
         },
 
-
         populateFromWikipedia: function(key, cardData) {
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: populateFromWikipedia', key, cardData);
             var title = cardData.title;
@@ -1097,38 +1173,42 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
 
         logMeIn: function(loginProvider) {
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: logMeIn', loginProvider);
-            switch (loginProvider) {
-                case 'twitter':
-                    {
-                        service.firebaseRef.authWithOAuthPopup("twitter", function(error, authData) {
-                            if (error) {
-                                //console.log('twitter error');
-                            }
-                            else {
-                                //console.log('twitter success!');
-                                service.loggedIn = true;
-                                service.loginData = authData;
-                                $rootScope.$apply();
-                                // service.showSimpleToast("Hello " + authData.twitter.displayName + "! You're now logged in.");
-
-                                service.firebaseUsers.once('value', function(snapshot) {
-                                    // if (!snapshot.hasChild(authData.uid)) {
-                                    service.firebaseUsers.child(authData.uid).update({
-                                        uid: authData.uid,
-                                        provider: authData.provider,
-                                        name: authData.twitter.displayName,
-                                        username: authData.twitter.username,
-                                        image: authData.twitter.profileImageURL,
-                                        url: "http://twitter.com/" + authData.twitter.username
-                                    }, function() {
-                                        service.importUser(authData.uid);
+            return $q(function(resolve, reject) {
+                switch (loginProvider) {
+                    case 'twitter':
+                        {
+                            service.firebaseRef.authWithOAuthPopup("twitter", function(error, authData) {
+                                if (error) {
+                                    console.log('twitter error');
+                                    reject();
+                                }
+                                else {
+                                    //console.log('twitter success!');
+                                    service.loggedIn = true;
+                                    service.loginData = authData;
+                                    $rootScope.$apply();
+                                    // service.showSimpleToast("Hello " + authData.twitter.displayName + "! You're now logged in.");
+    
+                                    service.firebaseUsers.once('value', function(snapshot) {
+                                        // if (!snapshot.hasChild(authData.uid)) {
+                                        service.firebaseUsers.child(authData.uid).update({
+                                            uid: authData.uid,
+                                            provider: authData.provider,
+                                            name: authData.twitter.displayName,
+                                            username: authData.twitter.username,
+                                            image: authData.twitter.profileImageURL,
+                                            url: "http://twitter.com/" + authData.twitter.username
+                                        }, function() {
+                                            service.importUser(authData.uid);
+                                            resolve();
+                                        });
+                                        // }
                                     });
-                                    // }
-                                });
-                            }
-                        });
-                    }
-            }
+                                }
+                            });
+                        }
+                }
+            });
         },
 
         allowingEditMode: function() {
@@ -1332,6 +1412,10 @@ app.directive('ngUserInterface', ['Cards', function(Cards) {
             scope.search = function(query) {
                 scope.hits = Cards.hits;
                 return Cards.search(query);
+            };
+
+            scope.bootUp = function(usingTeams) {
+                Cards.bootUp(usingTeams);
             };
 
             scope.toggleLogin = function() {

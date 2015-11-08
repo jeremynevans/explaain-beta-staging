@@ -528,3 +528,14 @@ li.card {
     font-weight: 400;
     color: #777;
 }
+
+
+
+
+
+@media (min-width: 768px) {
+    .modal-dialog {
+        width: 600px;
+        margin: 150px auto;
+    }
+}
