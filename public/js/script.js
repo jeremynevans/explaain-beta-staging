@@ -173,9 +173,13 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         connectToAlgolia: function() { // Needs to be called on page load
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: connectToAlgolia');
             service.clientAlgolia = algoliasearch('RR6V7DE8C8', 'b96680f1343093d8822d98eb58ef0d6b'); /* global algoliasearch */
-            //Check algoliaIndex has been changed to thisAlgoliaIndex in branch-specific.js
-            service.algoliaIndex = service.clientAlgolia.initIndex(thisAlgoliaIndex); /* global thisAlgoliaIndex */
-
+            if (service.usingTeams) {
+                service.algoliaIndex = service.clientAlgolia.initIndex('cards-' + service.thisTeam);
+            } else {
+                //Check algoliaIndex has been changed to thisAlgoliaIndex in branch-specific.js
+                service.algoliaIndex = service.clientAlgolia.initIndex(thisAlgoliaIndex); /* global thisAlgoliaIndex */
+            }
+            
             service.hits = [];
             service.query = '';
             service.initRun = true;
