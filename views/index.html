@@ -54,15 +54,15 @@
 
         <i class="material-icons action-icon toggle-login login-{{loggedIn}}" ng-hide="loggedIn()" ng-click="toggleLogin()">account_circle</i>
         <img class="login-image" ng-src="{{loginData().twitter.profileImageURL}}" ng-show="loggedIn()">
-        <i class="material-icons action-icon edit-mode edit-mode-{{getEditMode()}}" ng-show="allowingEditMode()" ng-click="toggleEditMode()">build</i>
-        <i class="material-icons action-icon refresh-all" ng-show="getEditMode()" ng-click="updateEverything()">autorenew</i>
+        <!--<i class="material-icons action-icon edit-mode edit-mode-{{getEditMode()}}" ng-if="!usingTeams()" ng-show="allowingEditMode()" ng-click="toggleEditMode()">build</i>-->
+        <!--<i class="material-icons action-icon refresh-all" ng-show="getEditMode()" ng-click="updateEverything()">autorenew</i>-->
         <!--<i class="material-icons action-icon new-card" ng-show="getEditMode()" ng-click="addNewCard({}, true, true, false, true)">queue</i>-->
         <div class="btn-group new-card">
-            <i class="material-icons action-icon new-card" ng-show="getEditMode()" data-toggle="dropdown">queue</i>
+            <i class="material-icons action-icon new-card" ng-show="loggedIn()" data-toggle="dropdown">queue</i>
             <ul class="dropdown-menu">
-                <li><a href="#" ng-click="addNewCard({}, 'profile', true, true, false, true)">New Profile</a></li>
-                <li><a href="#" ng-click="addNewCard({}, 'quote', true, true, false, true)">New Quote</a></li>
-                <li><a href="#" ng-click="addNewCard({}, 'embed', true, true, false, true)">New Embed</a></li>
+                <li><a href="#" ng-click="addNewCard({}, 'profile', true, true, false, true)">New Profile Card</a></li>
+                <li><a href="#" ng-click="addNewCard({}, 'quote', true, true, false, true)">New Quote Card</a></li>
+                <li><a href="#" ng-click="addNewCard({}, 'embed', true, true, false, true)">New Embed Card</a></li>
                 <!--<li role="separator" class="divider"></li>-->
                 <!--<li><a href="#">New Map</a></li>-->
             </ul>

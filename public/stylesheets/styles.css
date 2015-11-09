@@ -123,8 +123,9 @@ md-input-container.md-default-theme .md-input {
 .new-card {
     position: fixed;
     top: 20px;
-    right: 140px;
-    color: orange;
+    /*right: 140px;*/
+    right: 70px;
+    color: #ff6e73;
 }
 
 .new-card .dropdown-menu {

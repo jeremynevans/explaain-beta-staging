@@ -84,7 +84,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         godMode: false,
         loggedIn: false,
         loginData: {},
-        editMode: false,
+        editMode: true,
         thisTeam: '',
 
         usingTeams: false,
@@ -1398,6 +1398,10 @@ app.directive('ngUserInterface', ['Cards', function(Cards) {
         restrict: 'A',
         link: function(scope, element, attrs) {
 
+    
+            scope.usingTeams = function() {
+                return Cards.usingTeams;
+            };
             scope.loggedIn = function() {
                 return Cards.loggedIn;
             };
