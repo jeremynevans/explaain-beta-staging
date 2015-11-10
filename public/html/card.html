@@ -49,15 +49,23 @@
                 </button>
                 <!--<span ng-repeat="keyword in getCardIdentity(card).keywords" class="label label-default" style="margin-right: 10px">{{keyword.data.keyword}}</span>-->
             </div>
-            <div layout layout-sm="column">
-                <md-input-container>
-                    <md-button class="md-raised md-primary" ng-click="update(card.objectID, card)">Update</md-button>
-                </md-input-container>
-                <md-input-container flex> </md-input-container>
-                <md-input-container>
-                    <md-button class="md-raised md-warn" ng-click="delete(card.objectID, card)">Delete</md-button>
-                </md-input-container>
+            <div class="row">
+                <div class="col-md-6 text-left">
+                    <button type="button" ng-click="delete(card.objectID, card)" class="btn btn-lg btn-danger main-buttons">Delete</button>
+                </div>
+                <div class="col-md-6 text-right">
+                    <button type="button" ng-click="update(card.objectID, card)" class="btn btn-lg btn-success main-buttons">Update</button>
+                </div>
             </div>
+            <!--<div layout layout-sm="column">-->
+            <!--    <md-input-container>-->
+            <!--        <md-button class="md-raised md-primary" ng-click="update(card.objectID, card)">Update</md-button>-->
+            <!--    </md-input-container>-->
+            <!--    <md-input-container flex> </md-input-container>-->
+            <!--    <md-input-container>-->
+            <!--        <md-button class="md-raised md-warn" ng-click="delete(card.objectID, card)">Delete</md-button>-->
+            <!--    </md-input-container>-->
+            <!--</div>-->
         </form>
     </div>
     <div class="credits-footer">

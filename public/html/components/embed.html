@@ -2,9 +2,6 @@
     <div ng-bind-html="embed.code | sanitize"></div>
 </div>
 
-<div layout layout-sm="column" ng-show="editing">
-    <md-input-container flex>
-        <label>Embed Code</label>
-        <input ng-model="embed.code">
-    </md-input-container>
+<div ng-show="editing">
+    <textarea msd-elastic ng-model="embed.code" placeholder="Embed Code" class="form-control" rows="3"></textarea>
 </div>

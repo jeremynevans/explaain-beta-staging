@@ -23,7 +23,7 @@ var cardToOpen = ''; //This is not a good way of doing it
 var myScope;
 var mainScope;
 
-var app = angular.module('app', ['firebase', 'ngMaterial', 'algoliasearch', 'ngRoute', 'ngSanitize', 'ngResource']); /* global angular */
+var app = angular.module('app', ['firebase', 'ngMaterial', 'algoliasearch', 'ngRoute', 'ngSanitize', 'ngResource', 'monospaced.elastic']); /* global angular */
 
 app.controller('MainCtrl', ['$scope', '$timeout', '$http', '$mdToast', '$mdSidenav', 'algolia', '$q', 'Cards', 'Post', function($scope, $timeout, $http, $mdToast, $mdSidenav, algolia, $q, Cards, Post) {
 
@@ -1777,6 +1777,10 @@ app.directive('ngStructuredText', ['Cards', function(Cards) {
             scope.openCard = function(key, edit) {
                 return Cards.open(key, edit);
             };
+            scope.getRows = function() {
+                console.log(rows);
+                return scope.rows;
+            }
         },
         // controller: function($scope, $element) {
         //     $scope.openCard = function(ref) {
@@ -1787,7 +1791,8 @@ app.directive('ngStructuredText', ['Cards', function(Cards) {
         scope: {
             editing: '=',
             text: '=',
-            label: '@'
+            label: '@',
+            rows: '@'
         }
     }
 }]);
@@ -1795,24 +1800,13 @@ app.directive('ngStructuredText', ['Cards', function(Cards) {
 app.directive('ngList', ['Cards', function(Cards) {
     return {
         restrict: 'EA',
-        // require: 'MainCtrl',
         templateUrl: 'html/components/list.html',
         link: function(scope, element, attrs) {
 
-            // scope.editing = attrs.editing;
-            // scope.text = attrs.text;
-
             scope.addItem = function(key, edit) {
                 scope.list.push({text:''});
-                // return Cards.open(key, edit);
             };
         },
-        // controller: function($scope, $element) {
-        //     $scope.openCard = function(ref) {
-        //         cardToOpen = ref;
-        //         $scope.openCard();
-        //     }
-        // },
         scope: {
             editing: '=',
             list: '=',
@@ -1857,6 +1851,29 @@ app.directive('ngImage', function() {
             editing: '=',
             image: '=',
             backupImageSrc: '=backup'
+        }
+    }
+});
+
+app.directive('ngText', function() {
+    return {
+        restrict: 'E',
+        // require: 'MainCtrl',
+        templateUrl: 'html/components/text.html',
+        link: function(scope, elem, attrs) {
+            scope.isTag = function(myTag) {
+                if (myTag == scope.tag) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        },
+        scope: {
+            editing: '=',
+            text: '=',
+            label: '@',
+            tag: '@'
         }
     }
 });

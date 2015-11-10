@@ -2,9 +2,6 @@
     <img class="image" ng-src="{{ image.value || backupImageSrc }}">
 </div>
 
-<div layout layout-sm="column"  ng-show="editing">
-    <md-input-container flex>
-        <label>Image URL</label>
-        <input ng-model="image.value">
-    </md-input-container>
+<div class="form-group" ng-show="editing">
+    <input type="text" class="form-control" ng-model="image.value" placeholder="Image URL">
 </div>

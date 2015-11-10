@@ -6,8 +6,10 @@
       </div>
     </div>
     <div class="header-text">
-      <h3 ng-hide="editing">{{ getAuthor(quoteAuthorRef).title }}</h3>
-      <h4 ng-hide="editing">{{ getAuthor(quoteAuthorRef).subtitle }}</h4>
+        <ng-text tag="h3" ng-hide="editing">{{ getAuthor(quoteAuthorRef).title }}</ng-text>
+        <ng-text tag="h4" ng-hide="editing">{{ getAuthor(quoteAuthorRef).subtitle }}</ng-text>
+      <!--<h3 ng-hide="editing">{{ getAuthor(quoteAuthorRef).title }}</h3>-->
+      <!--<h4 ng-hide="editing">{{ getAuthor(quoteAuthorRef).subtitle }}</h4>-->
     </div>
   </div>
 </a>

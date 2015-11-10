@@ -364,7 +364,7 @@ li.card {
 }
 
 .card .input-group {
-    margin: 0.2em;
+    /*margin: 0.2em;*/
 }
 
 .card button.keyword {
@@ -406,6 +406,15 @@ li.card {
 .card a:hover .author-image,
 .card a:hover .author-text {
     opacity: 0.7;
+}
+
+.card ul.list.no-style  {
+    list-style-type: none;
+    margin: 10px 0;
+}
+
+textarea.form-control {
+    margin: 10px 0;
 }
 
 .card a, .card a div, .card a h1, .card a h2, .card a h3, .card a h4, .card a h5, .card a h6, .card a p {
@@ -477,6 +486,11 @@ li.card {
 .card .delete:hover {
     color: red;
     opacity: 0.5;
+}
+
+.card .main-buttons {
+    margin-top: 20px;
+    font-size: 17px;
 }
 
 .done-true {
