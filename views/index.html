@@ -51,6 +51,29 @@
             </div><!-- /.modal-content -->
           </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
+        
+        <!-- Create team modal -->
+        <div class="modal fade" id="createTeamModal" tabindex="-1" role="dialog" aria-labelledby="createTeamModalLabel" data-backdrop="static">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" ng-click="bootUp(false)" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Set up a new team</h4>
+              </div>
+              <div class="modal-body">
+                <p>Looks like this is your first time on Explaain - create yourself a team below:</p>
+                <div class="form-group">
+                    <label for="team-name" class="control-label">Team name:</label>
+                    <input type="text" class="form-control" id="team-name" ng-model="teamTitle">
+                </div>
+              </div>
+              <div class="modal-footer" style="text-align: center;">
+                <!--<a href="mailto:jeremy@explaain.com" target="_blank"></a><button type="button" class="btn btn-primary" data-dismiss="modal">Request access to an existing team</button></a>-->
+                <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="bootUpNewTeam(teamTitle)">Create team</button>
+              </div>
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
 
         <i class="material-icons action-icon toggle-login login-{{loggedIn}}" ng-hide="loggedIn()" ng-click="toggleLogin()">account_circle</i>
         <img class="login-image" ng-src="{{loginData().twitter.profileImageURL}}" ng-show="loggedIn()">
@@ -88,6 +111,13 @@
             <!--</form>-->
             
             <ng-card ng-repeat="card in cards | filter:showingFilter | orderBy: 'atFront' | limitTo: -6"></ng-card>
+            <div id="spinner" class="spinner">
+                <div class="rect1"></div>
+                <div class="rect2"></div>
+                <div class="rect3"></div>
+                <div class="rect4"></div>
+                <div class="rect5"></div>
+            </div>
         </ul>
     </div>
 

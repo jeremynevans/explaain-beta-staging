@@ -1,4 +1,6 @@
-$('#myModal').modal();
+ $(window).load(function() {
+     $('#myModal').modal();
+ });
 
 function clog(myText) {
     //console.log(myText);
@@ -37,7 +39,7 @@ app.controller('MainCtrl', ['$scope', '$timeout', '$http', '$mdToast', '$mdSiden
 
     // Post.query(function(data) {
     //     $scope.posts = data;
-    //     console.log(data);
+    //     //console.log(data);
     // });
 
     // function myFunction() {
@@ -48,7 +50,7 @@ app.controller('MainCtrl', ['$scope', '$timeout', '$http', '$mdToast', '$mdSiden
     // myFunction();
 
     // function myFunction1(data) {
-    //     console.log('data2', data);
+    //     //console.log('data2', data);
     // }
 
     //Should these be in a service?
@@ -90,6 +92,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         usingTeams: false,
 
         firebaseRef: null,
+        firebaseTeams: null,
         firebaseCards: null,
         firebaseIdentities: null,
         firebaseKeywords: null,
@@ -126,8 +129,13 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             if (usingTeams) {
                 service.logMeIn('twitter').then(function() {
                     service.getThisUserTeam().then(function(team) {
-                        service.thisTeam = team;
-                        service.bootUpCards();
+                        //console.log(team);
+                        if (!team) {
+                            $('#createTeamModal').modal();
+                        } else {
+                            service.thisTeam = team;
+                            service.bootUpCards();
+                        }
                     });
                 });
             } else {
@@ -135,39 +143,69 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             }
         },
         
-        bootUpCards: function() {
-            service.connectToFirebaseCards();
+        bootUpNewTeam: function(teamTitle) {
+            var newTeam = service.firebaseTeams.push();
+                        var teamKey = newTeam.key()
+                        newTeam.set({
+                            settings: {
+                                title: teamTitle
+                            }
+                        }, function(error) {
+                            service.thisTeam = teamKey;
+                            service.firebaseUsers.child(service.loginData.uid).update({
+                                    teams: [
+                                        service.thisTeam
+                                        ]
+                                }, function() {
+                                    service.importUser(service.loginData.uid);
+                                    service.bootUpCards(true);
+                                });
+                        });
+        },
+        
+        bootUpCards: function(firstTime) {
+            service.connectToFirebaseCards(firstTime);
             service.connectToAlgolia();
             service.reorderKeywords(); //Shouldn't be needed once SetWIthPriority kicks in properly
         },
         
         insertSpinner: function() {
-            $('ul.cards').append('<div id="spinner" class="spinner"><div class="rect1"></div> <div class="rect2"></div> <div class="rect3"></div> <div class="rect4"></div> <div class="rect5"></div></div>');
+            // $('ul.cards').append('<div id="spinner" class="spinner"><div class="rect1"></div> <div class="rect2"></div> <div class="rect3"></div> <div class="rect4"></div> <div class="rect5"></div></div>');
         },
 
         connectToFirebase: function() {
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: connectToFirebase');
             if (service.usingTeams) {
                 service.firebaseRef = new Firebase(firebaseTeams); /* global Firebase */ /* global firebaseRoot */
-                service.firebaseUsersRef = service.firebaseRef;
+                service.firebaseTeams = service.firebaseRef.child("teams");
             } else {
                 service.firebaseRef = new Firebase(firebaseRoot); /* global Firebase */ /* global firebaseRoot */
-                service.firebaseUsersRef = service.firebaseRef;
             }
-            
-            service.firebaseUsers = service.firebaseUsersRef.child("users");
+            service.firebaseUsers = service.firebaseRef.child("users");
         },
         
-        connectToFirebaseCards: function() {
+        connectToFirebaseCards: function(firstTime) {
             if (service.usingTeams) {
                 service.firebaseRef = service.firebaseRef.child("teams/" + service.thisTeam);
             }
             service.firebaseCards = service.firebaseRef.child("cards");
             service.firebaseIdentities = service.firebaseRef.child("identities");
             service.firebaseKeywords = service.firebaseRef.child("keywords");
-            service.getInitialIdentity().then(function() {
-                service.initialiseFirstCard();
-            });
+            if (firstTime) {
+                service.getInitialIdentity("-K2gZjvQ-Cx2kJvq64Bb").then(function() {
+                    service.cloneAllCards(service.firebaseTeams.child("-K2gZjvQ-Cx2kJvq64Bb/cards"), service.initialIdentity).then(function() {
+                        service.getInitialIdentity(null).then(function() {
+                            //console.log("service.initialIdentity: " + service.initialIdentity);
+                            service.updateAllBios();
+                            service.initialiseFirstCard();
+                        });
+                    });
+                });
+            } else {
+                service.getInitialIdentity(null).then(function() {
+                    service.initialiseFirstCard();
+                });
+            }
         },
 
         connectToAlgolia: function() { // Needs to be called on page load
@@ -215,6 +253,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: initialiseFirstCard');
             //console.log('opening first card');
             //console.log(initialIdentity);
+            //console.log('initialiseFirstCard');
             service.open(service.initialIdentity, false);
         },
 
@@ -291,15 +330,18 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             return user;
         },
         
-        getInitialIdentity: function() {
+        getInitialIdentity: function(team) {
+            //console.log("team: " + team);
             return $q(function(resolve, reject) {
                 if (service.usingTeams) {
-                    service.firebaseRef.child("settings").once('value', function(snapshot) {
+                    var teamRef = team ? service.firebaseTeams.child(team) : service.firebaseRef;
+                    teamRef.child("settings").once('value', function(snapshot) {
+                        //console.log(snapshot.val());
                         service.initialIdentity = snapshot.val().initialIdentity;
                         resolve();
                     });
                 } else {
-                    service.initialIdentity = initialIdentity;
+                    service.initialIdentity = initialIdentity; /* From branch-specific.js */
                     resolve();
                 }
             });
@@ -315,11 +357,15 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     if (reImport) {
                         //console.log('yep');
                         service.reImportCard(key).then(function() {
+                            //console.log('service.cards 1');
+                            //console.log(service.cards);
                             resolve(card);
                         });
                     }
                     else {
                         //console.log('nope');
+                            //console.log('service.cards 2');
+                            //console.log(service.cards);
                         resolve(card);
                     }
                 }
@@ -328,6 +374,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     promise.then(function(tempCard) {
                         //console.log('tempCard', tempCard);
                         card = tempCard;
+                            //console.log('service.cards 3');
+                            //console.log(service.cards);
                         resolve(card);
                     });
                 }
@@ -385,8 +433,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                         var promise = service.importUser(key);
                         promise.then(function(tempUser) {
                             user = tempUser;
-                            console.log('user');
-                            console.log(user);
+                            //console.log('user');
+                            //console.log(user);
                             resolve(user);
                         });
                     }
@@ -407,7 +455,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         getUserTeam: function(key) {
             return $q(function(resolve, reject) {
                 service.getUser(key).then(function(user) {
-                    var team = user.data.teams[0];
+                    var team = user.data.teams ? user.data.teams[0] : null;
                     resolve(team);
                 });
             });
@@ -430,9 +478,16 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                             service.getUser(newCard.data.authorId).then(function(user) {
                                 // newCard.author = user;
                                 //console.log('user: ', user);
-                                var length = service.cards.push(newCard);
+                                var foundCard = service.cardImported(key); //This checks again at the last minute - is this really the most efficient way of doing it?
+                                //console.log('foundCard test: ' + key);
+                                //console.log(foundCard);
                                 service.removeSpinner();
-                                resolve(service.cards[length - 1]);
+                                if (!foundCard) {
+                                    var length = service.cards.push(newCard);
+                                    resolve(service.cards[length - 1]);
+                                } else {
+                                    resolve(foundCard);
+                                }
                             });
                         });
 
@@ -453,8 +508,15 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                             objectID: snapshot.key(),
                             keywords: keywordsTemp
                         };
-                        var length = service.identities.push(newIdentity);
-                        resolve(service.identities[length - 1]);
+                        var foundIdentity = service.identityImported(key); //This checks again at the last minute - is this really the most efficient way of doing it?
+                        //console.log('foundIdentity test: ' + key);
+                        //console.log(foundIdentity);
+                        if (!foundIdentity) {
+                            var length = service.identities.push(newIdentity);
+                            resolve(service.identities[length - 1]);
+                        } else {
+                            resolve(foundIdentity);
+                        }
                     })
                 }, function(error) {
                     reject(-1);
@@ -509,6 +571,48 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
 
                 }, function(error) {
                     reject(-1);
+                });
+            });
+        },
+        
+        cloneAllCards: function(cardSet, initialIdentity) {
+            return $q(function(resolve, reject) {
+                cardSet.on('child_added', function(snapshot) {
+                    //console.log(initialIdentity);
+                    //console.log(snapshot.val().identity);
+                    if (snapshot.val().identity == initialIdentity) {
+                        var thisIsInitial = true;
+                        //console.log('the one');
+                    }
+                    service.cloneCard(snapshot.val(), thisIsInitial).then(function() {
+                        if (thisIsInitial) {
+                            //console.log('resolving');
+                            resolve();
+                        }
+                    });
+                });
+            });
+            
+            //-----------Still haven't figured out how to do this....
+            // return $q.all(myPromises).then(function() {
+            //     //console.log('resolving');
+            // });
+        },
+        
+        cloneCard: function(originalCardData, thisIsInitial) {
+            return $q(function(resolve, reject) {
+                originalCardData.objectID = null;
+                originalCardData.dateCreated = Date.now();
+                originalCardData.identity = null;
+                var newCardData = originalCardData;
+                var newCard = service.firebaseCards.push();
+                var key = newCard.key();
+                newCardData.objectID = key;
+                newCard.set(newCardData, function(error) {
+                    //console.log(newCardData);
+                    service.addNewIdentity(key, newCardData.title, thisIsInitial);
+                    service.algoliaAdd(newCardData, key); // This needs to use callbacks etc
+                    resolve();
                 });
             });
         },
@@ -567,7 +671,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             });
         },
 
-        addNewIdentity: function(initialCardKey, initialKeyword) { //Only call this function once the card has been created
+        addNewIdentity: function(initialCardKey, initialKeyword, thisIsInitial) { //Only call this function once the card has been created
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: addNewIdentity', initialCardKey, initialKeyword);
             return $q(function(resolve, reject) {
                 var newIdentity = service.firebaseIdentities.push();
@@ -599,6 +703,12 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                             });
                     });
                 });
+                if (thisIsInitial) {
+                    service.firebaseRef.child("settings").update({initialIdentity: identityKey}, function() {
+                        //console.log(identityKey);
+                    });
+                }
+                
 
                 // function afterNewIdentity() {
 
@@ -626,8 +736,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: addNewKeyword', newkeyword, showToast);
             return $q(function(resolve, reject) {
                 service.firebaseKeywords.orderByChild("keyword").equalTo(newkeyword.keyword).once('value', function(snapshot) {
-                    if (snapshot.val() != null) {
-                        console.log('keyword with same string already exists');
+                    if (snapshot.val() !== null) {
+                        //console.log('keyword with same string already exists');
                         reject();
                     }
                     else {
@@ -835,7 +945,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             service.getIdentity(identityKey).then(function(identity) {
                 //console.log('layer2');
                 var cardKey = service.getCardFromIdentity(identity);
-                service.getCard(cardKey).then(function(card) {
+                service.getCard(cardKey, true).then(function(card) {
                     //console.log('layer3');
                     service.moveCardToFront(card.objectID);
                     //console.log('edit:', edit);
@@ -938,7 +1048,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         structureText: function(identityKey, text, keywords) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: structureText', identityKey, text, keywords);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: structureText', identityKey, text, keywords);
             var structuredText = [{
                 text: text,
                 type: 'span'
@@ -1013,6 +1123,25 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                         if (service.cardImported(key)) {
                             service.reImportCard(key);
                         }
+                    }
+                });
+            });
+        },
+
+        updateAllBios: function() {
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateAllBios');
+            //Copied and adjusted from updateBiosFromKeyword()
+            //Should this use Algolia to search through bios?
+            //Slightly updated now we have localCards, but still not quite right
+            service.reorderKeywords().then(function() {
+                service.firebaseCards.on('child_added', function(snapshot) { //Should this be once() not on() to stop it continuing to do it?
+                    var key = snapshot.key();
+                    //console.log(snapshot.val());
+                    var bio = snapshot.val().bio.value;
+                    var structuredBio = service.structureText(snapshot.val().identity, bio, service.orderedKeywords);
+                    service.firebaseCards.child(key).child('bio').child('structure').set(structuredBio);
+                    if (service.cardImported(key)) {
+                        service.reImportCard(key);
                     }
                 });
             });
@@ -1183,7 +1312,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                         {
                             service.firebaseRef.authWithOAuthPopup("twitter", function(error, authData) {
                                 if (error) {
-                                    console.log('twitter error');
+                                    //console.log('twitter error');
                                     reject();
                                 }
                                 else {
@@ -1425,6 +1554,10 @@ app.directive('ngUserInterface', ['Cards', function(Cards) {
             scope.bootUp = function(usingTeams) {
                 Cards.bootUp(usingTeams);
             };
+            scope.bootUpNewTeam = function(teamTitle) {
+                Cards.bootUpNewTeam(teamTitle);
+            };
+            
 
             scope.toggleLogin = function() {
                 Cards.toggleLogin();
