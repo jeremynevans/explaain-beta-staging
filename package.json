@@ -9,7 +9,7 @@
   "dependencies": {
     "ejs": "2.3.3",
     "express": "4.13.3",
-    "angular-elastic": "2.5.1"
+    "angular-elastic": "latest"
   },
   "engines": {
     "node": "0.12.7"
