@@ -111,6 +111,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         formatOptions: function() {
             return [
                 'profile',
+                'list',
                 'quote',
                 'embed'
             ]
@@ -196,7 +197,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     service.cloneAllCards(service.firebaseTeams.child("-K2gZjvQ-Cx2kJvq64Bb/cards"), service.initialIdentity).then(function() {
                         service.getInitialIdentity(null).then(function() {
                             //console.log("service.initialIdentity: " + service.initialIdentity);
-                            service.updateAllBios();
+                            service.updateAllText();
                             service.initialiseFirstCard();
                         });
                     });
@@ -641,9 +642,13 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     structure: []
                 };
             }
-            cardData.bio.structure = [];
-            cardData.bio.structure = service.structureText(-1, cardData.bio.value, service.orderedKeywords);
-
+            
+            if (format=="list") { //Need to do all this properly
+                cardData.list = [{value: ''}];
+            }
+            
+            cardData = service.structureAllText(cardData);
+            
             cardData.id = cardData.title.replace(" ", "-").toLowerCase();
             //console.log('cardData', cardData);
             var newCard = service.firebaseCards.push();
@@ -761,7 +766,10 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
 
         updateCard: function(key, card) {
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateCard', key, card);
-            card.data.bio.structure = service.structureText(card.data.identity, card.data.bio.value, service.orderedKeywords);
+            
+            var cardData = card.data;
+            cardData = service.structureAllText(cardData);
+            
             card = angular.fromJson(angular.toJson(card)); // This removes $$hashKey etc so Firebase accepts it
             // var identity = service.identities[service.identityKeyPos(card.data.identity)];
             // var hasKeyword = $.grep(identity.keywords, function(e) {
@@ -934,7 +942,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
 
         openFromCardKey: function(cardKey, edit) { //For now just selects identity from card and then acts as normal (so will select the most popular card from that identity)
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: openFromCardKey', cardKey, edit);
-            service.getCard(cardKey).then(function(card) {
+            service.getCard(cardKey, true).then(function(card) {
                 service.open(card.data.identity, edit);
             });
         },
@@ -1046,6 +1054,30 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             }
             return shorterSplit.join(". ") + "...";
         },
+        
+        structureAllText: function(cardData) {
+          if (cardData.textStructures) {
+                for (i=0; i < cardData.textStructures.length; i++) {
+                    console.log(cardData.textStructures[i]);
+                    console.log(cardData[cardData.textStructures[i]]);
+                    if (cardData[cardData.textStructures[i]][0]) { //This handles lists but not yet 2-dimensional arrays (e.g. for tables)
+                        for (j=0; j < cardData[cardData.textStructures[i]].length; j++) {
+                            console.log(cardData[cardData.textStructures[i]][j]);
+                            cardData[cardData.textStructures[i]][j].structure = [];
+                            cardData[cardData.textStructures[i]][j].structure = service.structureText(-1, cardData[cardData.textStructures[i]][j].value, service.orderedKeywords);
+                        }
+                    } else {
+                        cardData[cardData.textStructures[i]].structure = [];
+                        cardData[cardData.textStructures[i]].structure = service.structureText(-1, cardData[cardData.textStructures[i]].value, service.orderedKeywords);
+                    }
+                }
+            } else {
+                cardData.bio.structure = [];
+                cardData.bio.structure = service.structureText(-1, cardData.bio.value, service.orderedKeywords);
+            }
+            
+            return cardData;
+        },
 
         structureText: function(identityKey, text, keywords) {
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: structureText', identityKey, text, keywords);
@@ -1128,8 +1160,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             });
         },
 
-        updateAllBios: function() {
-            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateAllBios');
+        updateAllText: function() {
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateAllText');
             //Copied and adjusted from updateBiosFromKeyword()
             //Should this use Algolia to search through bios?
             //Slightly updated now we have localCards, but still not quite right
@@ -1138,8 +1170,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     var key = snapshot.key();
                     //console.log(snapshot.val());
                     var bio = snapshot.val().bio.value;
-                    var structuredBio = service.structureText(snapshot.val().identity, bio, service.orderedKeywords);
-                    service.firebaseCards.child(key).child('bio').child('structure').set(structuredBio);
+                    var cardData = service.structureAllText(snapshot.val());
+                    service.firebaseCards.child(key).set(cardData);
                     if (service.cardImported(key)) {
                         service.reImportCard(key);
                     }
@@ -1755,6 +1787,35 @@ app.directive('ngStructuredText', ['Cards', function(Cards) {
         scope: {
             editing: '=',
             text: '=',
+            label: '@'
+        }
+    }
+}]);
+
+app.directive('ngList', ['Cards', function(Cards) {
+    return {
+        restrict: 'EA',
+        // require: 'MainCtrl',
+        templateUrl: 'html/components/list.html',
+        link: function(scope, element, attrs) {
+
+            // scope.editing = attrs.editing;
+            // scope.text = attrs.text;
+
+            scope.addItem = function(key, edit) {
+                scope.list.push({text:''});
+                // return Cards.open(key, edit);
+            };
+        },
+        // controller: function($scope, $element) {
+        //     $scope.openCard = function(ref) {
+        //         cardToOpen = ref;
+        //         $scope.openCard();
+        //     }
+        // },
+        scope: {
+            editing: '=',
+            list: '=',
             label: '@'
         }
     }

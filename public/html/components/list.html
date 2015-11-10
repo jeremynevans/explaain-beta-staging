@@ -1,0 +1,6 @@
+<ul class="list">
+    <li ng-repeat="item in list">
+        <ng-structured-text text="item" editing="editing" class="bio"></ng-structured-text>
+    </li>
+    <button type="button" class="btn btn-default" ng-click="addItem()" ng-show="editing">Add Item</button>
+</ul>
