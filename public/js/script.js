@@ -1873,6 +1873,9 @@ app.directive('ngSearch', ['Cards', function(Cards) {
                         break;
                 }
             };
+            scope.setFocus = function(focussed) {
+                scope.focussed = focussed;
+            }
         }
     };
 }]);
