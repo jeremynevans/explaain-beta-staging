@@ -7,9 +7,9 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "ejs": "2.3.3",
+    "ejs": "^2.3.3",
     "express": "^4.13.3",
-    "angular-elastic": "latest",
+    "angular-elastic": "^2.5.0",
     "body-parser": "^1.14.1",
     "q": "^1.4.1",
     "algoliasearch": "^3.9.2",
@@ -20,9 +20,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/heroku/node-js-getting-started"
+    "url": "https://github.com/jeremynevans/explaain-beta-staging"
   },
   "keywords": [
+    "explaain",
     "node",
     "heroku",
     "express"
