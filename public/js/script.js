@@ -87,7 +87,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         loggedIn: false,
         loginData: {},
         editMode: true,
-        thisTeam: '',
+        thisTeam: null,
 
         usingTeams: false,
 
@@ -98,6 +98,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         firebaseKeywords: null,
         firebaseUsers: null,
 
+        algoliaSearchAPIKey: null,
         clientAlgolia: null,
         algoliaIndex: null,
 
@@ -124,24 +125,26 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
         
         bootUp: function(usingTeams) {
-            service.insertSpinner();
             service.usingTeams = usingTeams;
-            service.connectToFirebase();
-            if (usingTeams) {
-                service.logMeIn('twitter').then(function() {
-                    service.getThisUserTeam().then(function(team) {
-                        //console.log(team);
-                        if (!team) {
-                            $('#createTeamModal').modal();
-                        } else {
-                            service.thisTeam = team;
-                            service.bootUpCards();
-                        }
+            service.serverConnectToServices(usingTeams)
+            .then(function() {
+                service.connectToFirebase();
+                if (usingTeams) {
+                    service.logMeIn('twitter').then(function() {
+                        service.getThisUserTeam().then(function(team) {
+                            //console.log(team);
+                            if (!team) {
+                                $('#createTeamModal').modal();
+                            } else {
+                                service.thisTeam = team;
+                                service.bootUpRecords();
+                            }
+                        });
                     });
-                });
-            } else {
-                service.bootUpCards();
-            }
+                } else {
+                    service.bootUpRecords();
+                }
+            });
         },
         
         bootUpNewTeam: function(teamTitle) {
@@ -159,30 +162,38 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                                         ]
                                 }, function() {
                                     service.importUser(service.loginData.uid);
-                                    service.bootUpCards(true);
+                                    // service.clientAlgolia.copyIndex('cards-template', ALGOLIA_INDEX + '-' + service.thisTeam, function(err, content) {
+                                    //   console.log(content);
+                                    service.bootUpRecords(true);
+                                    // });
                                 });
                         });
         },
         
-        bootUpCards: function(firstTime) {
-            service.connectToFirebaseCards(firstTime);
-            service.connectToAlgolia();
-            service.reorderKeywords(); //Shouldn't be needed once SetWIthPriority kicks in properly
-        },
-        
-        insertSpinner: function() {
-            // $('ul.cards').append('<div id="spinner" class="spinner"><div class="rect1"></div> <div class="rect2"></div> <div class="rect3"></div> <div class="rect4"></div> <div class="rect5"></div></div>');
-        },
+        bootUpRecords: function(firstTime) {
+            service.serverConnectToRecords()
+            .then(function() {
+                service.connectToFirebaseCards(firstTime);
+                service.connectToAlgolia();
+                service.connectToAlgoliaIndex();
+                service.reorderKeywords(); //Shouldn't be needed once SetWIthPriority kicks in properly
+            });
+       },
 
         connectToFirebase: function() {
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: connectToFirebase');
             if (service.usingTeams) {
-                service.firebaseRef = new Firebase(firebaseTeams); /* global Firebase */ /* global firebaseRoot */
+                service.firebaseRef = new Firebase(FIREBASE_INSTANCE_CLOSED); /* global Firebase */ /* global firebaseRoot */
                 service.firebaseTeams = service.firebaseRef.child("teams");
             } else {
-                service.firebaseRef = new Firebase(firebaseRoot); /* global Firebase */ /* global firebaseRoot */
+                service.firebaseRef = new Firebase(FIREBASE_INSTANCE_OPEN); /* global Firebase */ /* global firebaseRoot */
             }
             service.firebaseUsers = service.firebaseRef.child("users");
+        },
+
+        connectToAlgolia: function() { // Needs to be called on page load
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: connectToAlgolia');
+            service.clientAlgolia = algoliasearch('RR6V7DE8C8', service.algoliaSearchAPIKey); /* global algoliasearch */
         },
         
         connectToFirebaseCards: function(firstTime) {
@@ -209,15 +220,14 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             }
         },
 
-        connectToAlgolia: function() { // Needs to be called on page load
-            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: connectToAlgolia');
-            service.clientAlgolia = algoliasearch('RR6V7DE8C8', 'b96680f1343093d8822d98eb58ef0d6b'); /* global algoliasearch */
+        connectToAlgoliaIndex: function() { // Needs to be called on page load
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: connectToAlgoliaIndex');
             if (service.usingTeams) {
-                service.algoliaIndex = service.clientAlgolia.initIndex('cards-' + service.thisTeam);
+                service.algoliaIndex = service.clientAlgolia.initIndex(ALGOLIA_INDEX + '-' + service.thisTeam);
             } else {
-                //Check algoliaIndex has been changed to thisAlgoliaIndex in branch-specific.js
-                service.algoliaIndex = service.clientAlgolia.initIndex(thisAlgoliaIndex); /* global thisAlgoliaIndex */
+                service.algoliaIndex = service.clientAlgolia.initIndex(ALGOLIA_INDEX);
             }
+            console.log(service.algoliaIndex);
             
             service.hits = [];
             service.query = '';
@@ -229,6 +239,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         search: function(query) {
             var hits = [];
             return $q(function(resolve, reject) {
+                console.log('query', query)
                 service.algoliaIndex.search(query, {
                         hitsPerPage: 20
                     },
@@ -237,13 +248,12 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
 
                         //     return;
                         // }
-                        // service.hits = content.hits;
                         hits = content.hits;
                         if (service.initRun) {
                             $rootScope.$apply();
                             service.initRun = false;
                         }
-                        // //console.log(service.hits);
+                        console.log(service.hits);
 
                         resolve(hits);
                     });
@@ -644,7 +654,9 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             }
             
             if (format=="list") { //Need to do all this properly
+                cardData.intro = {value: ''};
                 cardData.list = [{value: ''}];
+                cardData.outro = {value: ''};
             }
             
             cardData = service.structureAllText(cardData);
@@ -1147,7 +1159,6 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             service.reorderKeywords().then(function() {
                 service.firebaseCards.on('child_added', function(snapshot) { //Should this be once() not on() to stop it continuing to do it?
                     var key = snapshot.key();
-                    //console.log(snapshot.val());
                     var bio = snapshot.val().bio.value;
                     if (bio.indexOf(keywordText) != -1) {
                         var structuredBio = service.structureText(snapshot.val().identity, bio, service.orderedKeywords);
@@ -1425,10 +1436,10 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: algoliaAdd', card, key);
             //console.log(card);
             var myObjectID = key;
-            service.algoliaIndex.addObject(card.data, myObjectID, function(err, content) {
+            // service.algoliaIndex.addObject(card.data, myObjectID, function(err, content) {
 
 
-            });
+            // });
         },
 
         algoliaUpdate: function(key, card) {
@@ -1437,19 +1448,19 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
 
             card.data.objectID = key;
             card.$$conf = null; //Probably not necessary to delete all of this (only to prevent "TypeError: Converting circular structure to JSON" error)
-            service.algoliaIndex.saveObject(card.data, function(err, content) {
+            // service.algoliaIndex.saveObject(card.data, function(err, content) {
 
-                // 
-            });
+             
+            // });
         },
 
         algoliaDelete: function(key) {
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: algoliaDelete', key);
-            service.algoliaIndex.deleteObject(key, function(error) {
-                if (!error) {
+            // service.algoliaIndex.deleteObject(key, function(error) {
+            //     if (!error) {
 
-                }
-            });
+            //     }
+            // });
         },
 
 
@@ -1500,13 +1511,139 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     });
                 });
             }
+        },
+        
+        
+        
+        talkToServer: function(url, type, data) {
+            return $q(function(resolve, reject) {
+                $.ajax({
+                    url: '/connection', 
+                    type: 'POST', 
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function(receivedData) {
+                        resolve(receivedData);
+                    },
+                    error: function() {
+                        console.log('Error talking to server', url, type, data);
+                        reject();
+                    }
+                });
+            });
+        },
+        
+        serverConnectToServices: function(usingTeams) {
+            return $q(function(resolve, reject) {
+                var connectionData = {
+                    connectTo: 'services',
+                    usingTeams: usingTeams
+                };
+                service.talkToServer('/connection', 'POST', connectionData)
+                .then(function(receivedData) {
+                    console.log(receivedData);
+                    resolve();
+                });
+            });
+        },
+        
+        serverConnectToRecords: function() {
+            return $q(function(resolve, reject) {
+                var connectionData = {
+                    connectTo: 'records',
+                    team: service.thisTeam
+                };
+                service.talkToServer('/connection', 'POST', connectionData)
+                .then(function(receivedData) {
+                    console.log(receivedData);
+                    service.algoliaSearchAPIKey = receivedData.algoliaSearchAPIKey;
+                    resolve();
+                });
+            });
+        },
+        
+        
+        
+        
+        //Starting the Node.js stuff
+        
+        NEW_addNewCard: function(cardData, format, open, justCreated, autoPopulate, edit) {
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: addNewCard', cardData, open, justCreated, autoPopulate, edit);
+            //This needs to be passed into the function, not created here
+            var identityKey = undefined;
+            
+            cardData.authorId = service.loginData.uid || null;
+            cardData.sources = [];
+            cardData.format = format || 'profile';
+            cardData.title = cardData.title || '';
+            cardData.bio = cardData.bio || {
+                    value: '',
+                    structure: []
+                };
+            
+            if (format=="list") { //Need to do all this properly
+                cardData.intro = {value: ''};
+                cardData.list = [{value: ''}];
+                cardData.outro = {value: ''};
+            }
+            
+            cardData = service.structureAllText(cardData);
+            
+            cardData.id = cardData.title.replace(" ", "-").toLowerCase();
+            //console.log('cardData', cardData);
+            var newCard = service.firebaseCards.push();
+            var key = newCard.key();
+            cardData.objectID = key;
+            newCard.set(cardData, function(error) {
+                //console.log('now set');
+                // if (cardData.title.length > 0) {
+                //     $scope.showSimpleToast("Success! You've added a new card called " + card.data.title);
+                // }
+                // else {
+                //     $scope.showSimpleToast("Success! You've added a new card.");
+                // }
+                //console.log('edit:', edit);
+                if (identityKey === undefined) { //$scope.addNewIdentity will sort the opening
+                    service.addNewIdentity(key, cardData.title).then(function(identityKey) {
+                        open ? service.open(identityKey, edit) : null;
+                    });
+                }
+                else {
+                    open ? service.open(identityKey, edit) : null;
+                }
+
+                service.algoliaAdd(cardData, key); // This needs to use callbacks etc
+            });
+        },
+        
+        serverChangeRecord: function(data, recordType, changeType, settings) {
+            var transferData = {
+                data: data,
+                recordType: recordType,
+                changeType: changeType,
+                settings: settings
+            };
+            service.talkToServer('/change-record', 'POST', transferData)
+                .then(function(receivedData) {
+                    console.log(receivedData);
+                });
         }
+        
+        
+        
+        
 
     };
 
     return service;
 
 }]);
+
+
+
+
+
+
 
 
 
@@ -1777,10 +1914,6 @@ app.directive('ngStructuredText', ['Cards', function(Cards) {
             scope.openCard = function(key, edit) {
                 return Cards.open(key, edit);
             };
-            scope.getRows = function() {
-                console.log(rows);
-                return scope.rows;
-            }
         },
         // controller: function($scope, $element) {
         //     $scope.openCard = function(ref) {
@@ -1792,7 +1925,7 @@ app.directive('ngStructuredText', ['Cards', function(Cards) {
             editing: '=',
             text: '=',
             label: '@',
-            rows: '@'
+            small: '@'
         }
     }
 }]);

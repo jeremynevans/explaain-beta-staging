@@ -6,5 +6,6 @@
 </div>
 
 <div ng-show="editing">
-    <textarea msd-elastic ng-model="text.value" placeholder="{{label}}" class="form-control" rows="2"></textarea>
+    <textarea ng-if="small" msd-elastic ng-model="text.value" placeholder="{{label}}" class="form-control" rows="1"></textarea>
+    <textarea ng-if="!small" msd-elastic ng-model="text.value" placeholder="{{label}}" class="form-control" rows="2"></textarea>
 </div>

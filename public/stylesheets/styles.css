@@ -408,8 +408,8 @@ li.card {
     opacity: 0.7;
 }
 
-.card ul.list.no-style  {
-    list-style-type: none;
+.card ul.list li.no-style  {
+    list-style: none !important;
     margin: 10px 0;
 }
 

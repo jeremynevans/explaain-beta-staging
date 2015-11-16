@@ -8,8 +8,11 @@
   },
   "dependencies": {
     "ejs": "2.3.3",
-    "express": "4.13.3",
-    "angular-elastic": "latest"
+    "express": "^4.13.3",
+    "angular-elastic": "latest",
+    "alogoliasearch": "3.9.2",
+    "body-parser": "^1.14.1",
+    "q": "^1.4.1"
   },
   "engines": {
     "node": "0.12.7"

@@ -13,4 +13,5 @@ var initialIdentity = '-JyDOPaDi5sYbe5tbqbp';
 
 var FIREBASE_INSTANCE_OPEN = 'https://explaain-v2-sandbox.firebaseio.com';
 var FIREBASE_INSTANCE_CLOSED = 'https://explaain-v2-sandbox.firebaseio.com';
+var ALGOLIA_INDEX = 'cards-staging';
 var ALGOLIA_INDEX_OPEN = 'cards-staging';
