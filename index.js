@@ -32,14 +32,14 @@ app.post('/connection', function(req, res) {
     switch (req.body.connectTo) {
         case 'services':
             connection.connectToServices(req.body.usingTeams)
-                .then(function() {
-                    res.json(req.body);
+                .then(function(responseData) {
+                    console.log(responseData);
+                    res.json(responseData);
                 });
             break;
         case 'records':
             connection.connectToRecords(req.body.team)
                 .then(function(responseData) {
-                    console.log('hi');
                     console.log(responseData);
                     res.json(responseData);
                 });

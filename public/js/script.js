@@ -127,8 +127,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         bootUp: function(usingTeams) {
             service.usingTeams = usingTeams;
             service.serverConnectToServices(usingTeams)
-            .then(function() {
-                service.connectToFirebase();
+            .then(function(fbInstance) {
+                service.connectToFirebase(fbInstance);
                 if (usingTeams) {
                     service.logMeIn('twitter').then(function() {
                         service.getThisUserTeam().then(function(team) {
@@ -172,23 +172,22 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         
         bootUpRecords: function(firstTime) {
             service.serverConnectToRecords()
-            .then(function() {
+            .then(function(algoliaIndex) {
                 service.connectToFirebaseCards(firstTime);
                 service.connectToAlgolia();
-                service.connectToAlgoliaIndex();
+                service.connectToAlgoliaIndex(algoliaIndex);
                 service.reorderKeywords(); //Shouldn't be needed once SetWIthPriority kicks in properly
             });
        },
 
-        connectToFirebase: function() {
+        connectToFirebase: function(fbInstance) {
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: connectToFirebase');
-            if (service.usingTeams) {
-                service.firebaseRef = new Firebase(FIREBASE_INSTANCE_CLOSED); /* global Firebase */ /* global firebaseRoot */
-                service.firebaseTeams = service.firebaseRef.child("teams");
-            } else {
-                service.firebaseRef = new Firebase(FIREBASE_INSTANCE_OPEN); /* global Firebase */ /* global firebaseRoot */
-            }
+            console.log(fbInstance);
+            service.firebaseRef = new Firebase(fbInstance);
             service.firebaseUsers = service.firebaseRef.child("users");
+            if (service.usingTeams) {
+                service.firebaseTeams = service.firebaseRef.child("teams");
+            }
         },
 
         connectToAlgolia: function() { // Needs to be called on page load
@@ -220,13 +219,10 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             }
         },
 
-        connectToAlgoliaIndex: function() { // Needs to be called on page load
+        connectToAlgoliaIndex: function(algoliaIndex) { // Needs to be called on page load
             //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: connectToAlgoliaIndex');
-            if (service.usingTeams) {
-                service.algoliaIndex = service.clientAlgolia.initIndex(ALGOLIA_INDEX + '-' + service.thisTeam);
-            } else {
-                service.algoliaIndex = service.clientAlgolia.initIndex(ALGOLIA_INDEX);
-            }
+            console.log(algoliaIndex);
+            service.algoliaIndex = service.clientAlgolia.initIndex(algoliaIndex);
             console.log(service.algoliaIndex);
             
             service.hits = [];
@@ -1542,7 +1538,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 service.talkToServer('/connection', 'POST', connectionData)
                 .then(function(receivedData) {
                     console.log(receivedData);
-                    resolve();
+                    resolve(receivedData.fbInstance);
                 });
             });
         },
@@ -1557,7 +1553,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 .then(function(receivedData) {
                     console.log(receivedData);
                     service.algoliaSearchAPIKey = receivedData.algoliaSearchAPIKey;
-                    resolve();
+                    resolve(receivedData.algoliaIndex);
                 });
             });
         },

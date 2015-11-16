@@ -18,11 +18,12 @@ exports.connectToServices = function(usingTeamsTemp) {
     usingTeams = usingTeamsTemp;
 
     var firebaseInstance = usingTeams ? process.env.FIREBASE_INSTANCE_CLOSED : process.env.FIREBASE_INSTANCE_OPEN;
-    fb = fbMain = new Firebase('https://' + firebaseInstance + '.firebaseio.com/');
+    var firebaseInstanceURL = 'https://' + firebaseInstance + '.firebaseio.com/';
+    fb = fbMain = new Firebase(firebaseInstanceURL);
     fbUsers = fb.child("users");
     client = algoliasearch('RR6V7DE8C8', 'b96680f1343093d8822d98eb58ef0d6b');
     
-    deferred.resolve();
+    deferred.resolve({fbInstance: firebaseInstanceURL});
     return deferred.promise;
 }
 
@@ -47,6 +48,7 @@ exports.connectToRecords = function(team) {
         fbCards.limitToLast(1).on('child_removed', removeIndex);
         
         deferred.resolve({
+            algoliaIndex: algoliaIndex,
             algoliaSearchAPIKey: algoliaSearchAPIKey
         });
     });
@@ -65,6 +67,8 @@ function getAlgoliaAPIKey(team) {
                 .then(function() {
                     deferred.resolve(key);
                 });
+            } else {
+                deferred.resolve(key);
             }
         })
     } else {
