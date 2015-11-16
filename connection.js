@@ -11,15 +11,13 @@ var algoliasearch = require('algoliasearch');
 var usingTeams, fb, fbTeams, fbMain, fbCards, fbUsers, client, index, algoliaSearchAPIKey;
 
 
-exports.connectToServices = function(usingTeamsTemp) {
+exports.connectToServices = function() {
     var deferred = Q.defer();
     console.log('making connections');
     
-    usingTeams = usingTeamsTemp;
 
-    var firebaseInstance = usingTeams ? process.env.FIREBASE_INSTANCE_CLOSED : process.env.FIREBASE_INSTANCE_OPEN;
-    var firebaseInstanceURL = 'https://' + firebaseInstance + '.firebaseio.com/';
-    fb = fbMain = new Firebase(firebaseInstanceURL);
+    var firebaseInstanceURL = 'https://' + process.env.FIREBASE_INSTANCE + '.firebaseio.com/';
+    fb = new Firebase(firebaseInstanceURL);
     fbUsers = fb.child("users");
     client = algoliasearch('RR6V7DE8C8', 'b96680f1343093d8822d98eb58ef0d6b');
     
@@ -27,11 +25,14 @@ exports.connectToServices = function(usingTeamsTemp) {
     return deferred.promise;
 }
 
-exports.connectToRecords = function(team) {
+exports.connectToRecords = function(usingTeamsTemp, team) {
     var deferred = Q.defer();
+    usingTeams = usingTeamsTemp;
     if (usingTeams) {
         fbTeams = fb.child("teams");
         fbMain = fbTeams.child(team);
+    } else {
+        fbMain = fb.child('open');
     }
     fbCards = fbMain.child('cards');
     

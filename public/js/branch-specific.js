@@ -8,7 +8,7 @@
 
 //////Everything above here should no longer be needed!
 
-var initialIdentity = '-JyDOPaDi5sYbe5tbqbp';
+var initialIdentity = '-K-JaqB-ZdWRxiiU5uwY';
 
 
 // var FIREBASE_INSTANCE_OPEN = 'https://explaain-v2-sandbox.firebaseio.com';

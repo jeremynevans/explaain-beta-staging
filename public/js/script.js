@@ -1,7 +1,3 @@
- $(window).load(function() {
-     $('#myModal').modal();
- });
-
 function clog(myText) {
     //console.log(myText);
 };
@@ -30,7 +26,7 @@ app.controller('MainCtrl', ['$scope', '$timeout', '$http', '$mdToast', '$mdSiden
     Cards.checkServiceWorks();
     mainScope = $scope;
 
-    // Cards.bootUpCards();
+    Cards.bootUp();
 
     $scope.cards = Cards.cards;
     $scope.hits = Cards.hits;
@@ -124,27 +120,33 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             //console.log('Service works!');
         },
         
-        bootUp: function(usingTeams) {
-            service.usingTeams = usingTeams;
-            service.serverConnectToServices(usingTeams)
+        bootUp: function() {
+            service.serverConnectToServices()
             .then(function(fbInstance) {
-                service.connectToFirebase(fbInstance);
-                if (usingTeams) {
-                    service.logMeIn('twitter').then(function() {
-                        service.getThisUserTeam().then(function(team) {
-                            //console.log(team);
-                            if (!team) {
-                                $('#createTeamModal').modal();
-                            } else {
-                                service.thisTeam = team;
-                                service.bootUpRecords();
-                            }
-                        });
-                    });
-                } else {
-                    service.bootUpRecords();
-                }
+                service.fbInstance = fbInstance;
+                $('#myModal').modal();
             });
+        },
+        
+        bootUpServices: function(usingTeams) {
+            console.log('bootUpServices');
+            service.usingTeams = usingTeams;
+            service.connectToFirebase(service.fbInstance);
+            if (usingTeams) {
+                service.logMeIn('twitter').then(function() {
+                    service.getThisUserTeam().then(function(team) {
+                        //console.log(team);
+                        if (!team) {
+                            $('#createTeamModal').modal();
+                        } else {
+                            service.thisTeam = team;
+                            service.bootUpRecords();
+                        }
+                    });
+                });
+            } else {
+                service.bootUpRecords();
+            }
         },
         
         bootUpNewTeam: function(teamTitle) {
@@ -171,7 +173,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
         
         bootUpRecords: function(firstTime) {
-            service.serverConnectToRecords()
+            console.log('bootUpRecords');
+            service.serverConnectToRecords(service.usingTeams)
             .then(function(algoliaIndex) {
                 service.connectToFirebaseCards(firstTime);
                 service.connectToAlgolia();
@@ -198,6 +201,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         connectToFirebaseCards: function(firstTime) {
             if (service.usingTeams) {
                 service.firebaseRef = service.firebaseRef.child("teams/" + service.thisTeam);
+            } else {
+                service.firebaseRef = service.firebaseRef.child("open");
             }
             service.firebaseCards = service.firebaseRef.child("cards");
             service.firebaseIdentities = service.firebaseRef.child("identities");
@@ -249,7 +254,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                             $rootScope.$apply();
                             service.initRun = false;
                         }
-                        console.log(service.hits);
+                        console.log(hits);
 
                         resolve(hits);
                     });
@@ -1529,11 +1534,10 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             });
         },
         
-        serverConnectToServices: function(usingTeams) {
+        serverConnectToServices: function() {
             return $q(function(resolve, reject) {
                 var connectionData = {
-                    connectTo: 'services',
-                    usingTeams: usingTeams
+                    connectTo: 'services'
                 };
                 service.talkToServer('/connection', 'POST', connectionData)
                 .then(function(receivedData) {
@@ -1543,10 +1547,11 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             });
         },
         
-        serverConnectToRecords: function() {
+        serverConnectToRecords: function(usingTeams) {
             return $q(function(resolve, reject) {
                 var connectionData = {
                     connectTo: 'records',
+                    usingTeams: usingTeams,
                     team: service.thisTeam
                 };
                 service.talkToServer('/connection', 'POST', connectionData)
@@ -1716,8 +1721,8 @@ app.directive('ngUserInterface', ['Cards', function(Cards) {
                 return Cards.search(query);
             };
 
-            scope.bootUp = function(usingTeams) {
-                Cards.bootUp(usingTeams);
+            scope.bootUpServices = function(usingTeams) {
+                Cards.bootUpServices(usingTeams);
             };
             scope.bootUpNewTeam = function(teamTitle) {
                 Cards.bootUpNewTeam(teamTitle);

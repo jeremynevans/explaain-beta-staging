@@ -38,7 +38,7 @@ app.post('/connection', function(req, res) {
                 });
             break;
         case 'records':
-            connection.connectToRecords(req.body.team)
+            connection.connectToRecords(req.body.usingTeams, req.body.team)
                 .then(function(responseData) {
                     console.log(responseData);
                     res.json(responseData);
