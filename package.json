@@ -1,7 +1,7 @@
 {
-  "name": "node-js-getting-started",
-  "version": "0.1.5",
-  "description": "A sample Node.js app using Express 4",
+  "name": "explaain-beta",
+  "version": "0.0.1",
+  "description": "Explaain.com - Beta",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -10,9 +10,9 @@
     "ejs": "2.3.3",
     "express": "^4.13.3",
     "angular-elastic": "latest",
-    "alogoliasearch": "3.9.2",
     "body-parser": "^1.14.1",
-    "q": "^1.4.1"
+    "q": "^1.4.1",
+    "algoliasearch": "^3.9.2"
   },
   "engines": {
     "node": "0.12.7"
