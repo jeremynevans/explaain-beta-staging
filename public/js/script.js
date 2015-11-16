@@ -89,6 +89,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
 
         firebaseRef: null,
         firebaseTeams: null,
+        firebaseMain: null,
         firebaseCards: null,
         firebaseIdentities: null,
         firebaseKeywords: null,
@@ -176,7 +177,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             console.log('bootUpRecords');
             service.serverConnectToRecords(service.usingTeams)
             .then(function(algoliaIndex) {
-                service.connectToFirebaseCards(firstTime);
+                service.connectToFirebaseRecords(firstTime);
                 service.connectToAlgolia();
                 service.connectToAlgoliaIndex(algoliaIndex);
                 service.reorderKeywords(); //Shouldn't be needed once SetWIthPriority kicks in properly
@@ -198,15 +199,11 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             service.clientAlgolia = algoliasearch('RR6V7DE8C8', service.algoliaSearchAPIKey); /* global algoliasearch */
         },
         
-        connectToFirebaseCards: function(firstTime) {
-            if (service.usingTeams) {
-                service.firebaseRef = service.firebaseRef.child("teams/" + service.thisTeam);
-            } else {
-                service.firebaseRef = service.firebaseRef.child("open");
-            }
-            service.firebaseCards = service.firebaseRef.child("cards");
-            service.firebaseIdentities = service.firebaseRef.child("identities");
-            service.firebaseKeywords = service.firebaseRef.child("keywords");
+        connectToFirebaseRecords: function(firstTime) {
+            service.firebaseMain = service.usingTeams ? service.firebaseRef.child("teams/" + service.thisTeam) : service.firebaseRef.child("open");
+            service.firebaseCards = service.firebaseMain.child("cards");
+            service.firebaseIdentities = service.firebaseMain.child("identities");
+            service.firebaseKeywords = service.firebaseMain.child("keywords");
             if (firstTime) {
                 service.getInitialIdentity("-K2gZjvQ-Cx2kJvq64Bb").then(function() {
                     service.cloneAllCards(service.firebaseTeams.child("-K2gZjvQ-Cx2kJvq64Bb/cards"), service.initialIdentity).then(function() {
@@ -343,19 +340,14 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
         
         getInitialIdentity: function(team) {
-            //console.log("team: " + team);
+            console.log("team: " + team);
             return $q(function(resolve, reject) {
-                if (service.usingTeams) {
-                    var teamRef = team ? service.firebaseTeams.child(team) : service.firebaseRef;
-                    teamRef.child("settings").once('value', function(snapshot) {
-                        //console.log(snapshot.val());
-                        service.initialIdentity = snapshot.val().initialIdentity;
-                        resolve();
-                    });
-                } else {
-                    service.initialIdentity = initialIdentity; /* From branch-specific.js */
+                var tempFirebaseMain = team ? service.firebaseTeams.child(team) : service.firebaseMain;
+                tempFirebaseMain.child("settings").once('value', function(snapshot) {
+                    console.log(snapshot.val());
+                    service.initialIdentity = snapshot.val().initialIdentity;
                     resolve();
-                }
+                });
             });
         },
 
@@ -722,7 +714,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     });
                 });
                 if (thisIsInitial) {
-                    service.firebaseRef.child("settings").update({initialIdentity: identityKey}, function() {
+                    service.firebaseMain.child("settings").update({initialIdentity: identityKey}, function() {
                         //console.log(identityKey);
                     });
                 }
