@@ -466,10 +466,10 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         importCard: function(key) {
-            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: importCard', key);
+            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: importCard', key);
             return $q(function(resolve, reject) {
                 service.firebaseCards.child(key).once('value', function(snapshot) {
-
+                        console.log(snapshot.val());
                         var newCard = {
                             data: snapshot.val(),
                             objectID: snapshot.key(),
@@ -946,14 +946,15 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         openFromCardKey: function(cardKey, edit) { //For now just selects identity from card and then acts as normal (so will select the most popular card from that identity)
-            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: openFromCardKey', cardKey, edit);
+            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: openFromCardKey', cardKey, edit);
             service.getCard(cardKey, true).then(function(card) {
+                console.log(card);
                 service.open(card.data.identity, edit);
             });
         },
 
         open: function(identityKey, edit) {
-            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: open', identityKey, edit);
+            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: open', identityKey, edit);
             //console.log('layer1');
             service.getIdentity(identityKey).then(function(identity) {
                 //console.log('layer2');
@@ -1859,7 +1860,7 @@ app.directive('ngSearch', ['Cards', function(Cards) {
                 }
             };
             scope.clickAction = function(key, cardData) {
-                //console.log(key, card);
+                console.log(key, cardData);
                 scope.query = '';
                 scope.hits = [];
                 switch (scope.action) {
@@ -1874,8 +1875,12 @@ app.directive('ngSearch', ['Cards', function(Cards) {
                 }
             };
             scope.setFocus = function(focussed) {
-                scope.focussed = focussed;
-            }
+                if (focussed) {
+                    scope.focussed = true;
+                } else {
+                    setTimeout(function(){ scope.focussed = false; mainScope.$apply(); }, 500); //Sort of a hack
+                }
+            };
         }
     };
 }]);
