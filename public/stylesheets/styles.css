@@ -459,19 +459,24 @@ textarea.form-control {
 .card .delete,
 .card .claim {
     float: right;
-    margin: -14px -16px;
+    margin: -12px -14px;
     text-decoration: none;
     color: #aaa;
+    margin-top: -14px;
+    font-size: 1.2em;
+}
+
+.card .close {
+    font-size: 22px !important;
+    margin-top: -16px;
 }
 
 .card .claim {
-    margin: -14px 9px;
-    font-size: 1.25em;
+    margin-right: 11px;
 }
 
 .card .edit {
-    margin: -14px 8px;
-    font-size: 1.2em;
+    margin-right: 10px;
 }
 
 .card .edit:hover {
@@ -480,8 +485,7 @@ textarea.form-control {
 }
 
 .card .delete {
-    margin: -14px 32px;
-    font-size: 1.2em;
+    margin-right: 34px;
 }
 
 .card .delete:hover {
