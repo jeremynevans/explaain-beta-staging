@@ -84,6 +84,7 @@ md-input-container.md-default-theme .md-input {
 .action-icon {
     opacity: 0.4;
     outline: 0;
+    font-size: 26px;
 }
 
 .action-icon:hover {
