@@ -78,6 +78,11 @@ md-input-container.md-default-theme .md-input {
     font-family: 'Lato', sans-serif;
 }
 
+.tooltip {
+    white-space: nowrap;
+    max-width: none;
+}
+
 
 /* Main Page Action Buttons */
 
@@ -243,7 +248,7 @@ li.card {
     margin: 2em 0;
     margin-top: -500px;
     padding: 1.5em 1.5em 1.1em 1.5em;
-    overflow: hidden;
+    /*overflow: hidden;*/
     list-style: none;
     border-radius: 0.5em;
     background: white;
@@ -468,7 +473,7 @@ textarea.form-control {
 
 .card .close {
     font-size: 22px !important;
-    margin-top: -16px;
+    /*margin-top: -16px;*/
 }
 
 .card .claim {

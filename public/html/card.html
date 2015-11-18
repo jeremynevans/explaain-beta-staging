@@ -1,8 +1,16 @@
 <li class="card card-{{card.objectID}}" style="margin-top: {{$index*10}}px; margin-left: {{$index*5}}px;">
-    <i class="fa fa-times action-icon close" ng-click="close(card.objectID)"></i>
-    <i class="fa fa-user-plus action-icon claim" ng-if="canBeClaimed(card)" ng-show="getEditMode()" ng-click="claim(card.objectID)"></i>
-    <i class="fa fa-pencil action-icon edit" ng-if="belongsToUser(card)" ng-show="getEditMode()" ng-click="toggleEdit(card.objectID)"></i>
-    <i class="fa fa-trash action-icon delete" ng-if="belongsToUser(card)" ng-show="getEditMode()" ng-click="delete(card.objectID, card)"></i>
+    <span data-toggle="tooltip" data-placement="bottom" title="Close card" class="action-icon close">
+        <i class="fa fa-times" ng-click="close(card.objectID)"></i>
+    </span>
+    <span data-toggle="tooltip" data-placement="bottom" title="Claim card" class="action-icon claim">
+        <i class="fa fa-user-plus" ng-if="canBeClaimed(card)" ng-show="getEditMode()" ng-click="claim(card.objectID)"></i>
+    </span>
+    <span data-toggle="tooltip" data-placement="bottom" title="Edit card" class="action-icon edit">
+        <i class="fa fa-pencil" ng-if="belongsToUser(card)" ng-show="getEditMode()" ng-click="toggleEdit(card.objectID)"></i>
+    </span>
+    <span data-toggle="tooltip" data-placement="bottom" title="Delete card" class="action-icon delete">
+        <i class="fa fa-trash" ng-if="belongsToUser(card)" ng-show="getEditMode()" ng-click="delete(card.objectID, card)"></i>
+    </span>
     <!--<i class="material-icons action-icon close" ng-click="close(card.objectID)">close</i>-->
     <!--<i class="material-icons action-icon claim" ng-if="canBeClaimed(card)" ng-show="getEditMode()" ng-click="claim(card.objectID)">assignment_ind</i>-->
     <!--<i class="material-icons action-icon edit" ng-if="belongsToUser(card)" ng-show="getEditMode()" ng-click="toggleEdit(card.objectID)">create</i>-->

@@ -8,7 +8,9 @@ function clogyo() {
 
 var currentTimestamp = Date.now();
 
-
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
 
 var firstCard = true;
 
@@ -966,6 +968,15 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     //console.log('card.editing:', card.editing);
                     //console.log('logic:', edit && !card.editing);
                     edit && !card.editing ? service.toggleEditCard(cardKey) : null;
+                    
+                    
+                    setTimeout(function(){
+                        $(function () {
+                          $('[data-toggle="tooltip"]').tooltip()
+                        })
+                        $('.icon-tooltip').tooltip();
+                    }, 1000);
+                    
 
                     //The stuff below is for importing the next set of cards before you click on any of them - needs testing and making sure it happens AFTER this card has loaded properly, so user doesn't notice
                     // var linkedCardsToImport = $scope.getLinksfromText($scope.localCards[localCardRef.ref].bio.structure);
@@ -1393,7 +1404,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
 
         cardBelongsToUser: function(card) {
             // //console.log((Date.now() - currentTimestamp),currentTimestamp = Date.now(), 'function: cardBelongsToUser', card);
-            if (card.data.authorId == service.loginData.uid | service.godMode) {
+            if ( service.loggedIn && (card.data.authorId == service.loginData.uid) | service.godMode) {
                 return true;
             }
             else {
