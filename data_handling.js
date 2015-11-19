@@ -1,3 +1,12 @@
+// data_handling.js
+var exports = module.exports = {};
+
+var Q = require('q');
+var Firebase = require('firebase');
+var algoliasearch = require('algoliasearch');
+
+
+
 //STILL TO SORT/FIX
 // - Initial Identity when cloning
 // - All action and most data follow ups
@@ -16,19 +25,27 @@ console.log('hi');
 
 //Data processing
 
-function changeRecord(data, recordType, changeType, settings) { //This comes straight from the client
+exports.changeRecord = function(data, recordType, changeType, settings) { //This comes straight from the client
+    var deferred = Q.defer();
     //Should check here whether it already exists & other tests (e.g. keyword length > 1)
-    if (changeType=='create') { data = setDefaults(data, getDefaults(recordType)); }
+    changeType=='create' ? data = setDefaults(data, getDefaults(recordType)) : null ;
     settings = setDefaultFollowUps(recordType, changeType, settings);
     data = specialRecordHandling(data, recordType, changeType);
     
+    console.log(changeType);
+    console.log(settings);
+    console.log(data);
+    
+    // connectToFirebase()
     changeFirebaseRecord(data, changeType)
     .then( function() { //This assumes none of these need to wait for any of the others
         if (changeType=='create') { data.objectID = record.key(); }
-        actionFollowUp(data, recordType, settings.followUp.action);
-        dataFollowUp(data, recordType, settings.followUp.data);
+        // actionFollowUp(data, recordType, settings.followUp.action);
+        // dataFollowUp(data, recordType, settings.followUp.data);
         changeAlgolia(data, recordType, changeType);
+        deferred.resolve(data);
         });
+    return deferred.promise;
 }
 
 function changeFirebaseRecord(data, changeType) {
@@ -36,7 +53,7 @@ function changeFirebaseRecord(data, changeType) {
     switch (changeType) {
         case 'create':
             var record = theseFirebaseRecords.push();
-            record.objectID = record.key(); //Seems like this shouldn't work but it's what we in the frontend before
+            record.objectID = record.key(); //Seems like this shouldn't work but it's what we had in the frontend before
             record.set(record, onFirebaseChange(error));
             break;
         case 'update':
@@ -71,7 +88,7 @@ function getDefaults(recordType) {
         'keyword': [
         ],
     };
-    return alldefaults[recordType];
+    return allDefaults[recordType];
 }
 
 function setDefaults(myObject, defaults) {
@@ -96,29 +113,15 @@ function setDefaultFollowUps(recordType, changeType, settings) {
     };
     var defaultActionFollowUps = {
         create: {
-            card: {
-                open: true,
-                startEditing: true,
-                stopEditing: false,
-                toggleEditing: false
-            }
         },
         update: {
-            card: {
-                startEditing: false,
-                stopEditing: true,
-                toggleEditing: false
-            }
         }
     };
     
-    
-    if (!settings.followUp.data) {
-        settings.followUp.data =  defaultDataFollowUps[changeType][recordType];
-    }
-    if (!settings.followUp.action) {
-        settings.followUp.action =  defaultActionFollowUps[changeType][recordType];
-    }
+    // Temporarily disabled all followups while testing
+    // !settings.followUp.data   ? settings.followUp.data   =  defaultDataFollowUps[changeType][recordType]   : null ;
+    // !settings.followUp.action ? settings.followUp.action =  defaultActionFollowUps[changeType][recordType] : null ;
+    return settings;
 }
 
 function cardFormatDefaults(data) {
@@ -143,7 +146,8 @@ function specialRecordHandling(data, recordType, changeType) {
     switch (recordType) {
         case 'card':
             if (changeType=='create') { data = cardFormatDefaults(data); }
-            data = structureAllCardText(data);
+            // Temporarily disabled all text sturtcuring while testing
+            // data = structureAllCardText(data);
             break;
     }
     return data;
@@ -167,8 +171,8 @@ function dataFollowUp(prevData, prevRecordType, followUp) {
         }
     };
     
-    
-    changeRecord(followUpData[prevRecordType][followUp.recordType], followUp.recordType, followUp.updateType)
+    // Temporarily disabled all data followups while testing
+    // changeRecord(followUpData[prevRecordType][followUp.recordType], followUp.recordType, followUp.updateType);
 }
 
 function changeAlgolia(data, recordType, changeType) {

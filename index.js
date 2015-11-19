@@ -49,9 +49,13 @@ app.post('/connection', function(req, res) {
 });
 
 app.post('/change-record', function(req, res) {
-  console.log('hello console');
+  console.log('hello - changing record');
   console.log(req.body);
-  res.json(req.body);
+  dataHandling.changeRecord(req.body.data, req.body.recordType, req.body.changeType, req.body.settings)
+  .then(function(responseData) {
+      console.log(responseData);
+      res.json(responseData);
+  })
 });
 
 
