@@ -567,7 +567,6 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 service.firebaseCards.child(key).once('value', function(snapshot) {
                     service.cards[service.cardKeyPos(key)].data = snapshot.val();
                     resolve(service.cards[service.cardKeyPos(key)]);
-
                 }, function(error) {
                     reject(-1);
                 });
@@ -647,7 +646,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 cardData.outro = {value: ''};
             }
             
-            cardData = service.structureAllText(cardData);
+            cardData = service.structureAllCardText(cardData);
             
             cardData.id = cardData.title.replace(" ", "-").toLowerCase();
             console.log('cardData', cardData);
@@ -763,12 +762,26 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 });
             });
         },
-
+        
         updateCard: function(key, card) {
+            var deferred = $q.defer();
+            card = angular.fromJson(angular.toJson(card));
+            service.appendKeyword(card.data.title, card.data.identity);
+            service.changeRecord(card.data, 'card', 'update', {})
+            .then(function() {
+                console.log('reImporting....');
+                service.reImportCard(key).then(function() {
+                    deferred.resolve();
+                });
+            });
+            return deferred.promised;
+        },
+
+        OLD_updateCard: function(key, card) {
             console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateCard', key, card);
             
             var cardData = card.data;
-            cardData = service.structureAllText(cardData);
+            cardData = service.structureAllCardText(cardData);
             
             card = angular.fromJson(angular.toJson(card)); // This removes $$hashKey etc so Firebase accepts it
             // var identity = service.identities[service.identityKeyPos(card.data.identity)];
@@ -966,7 +979,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     
                     setTimeout(function(){
                         $(function () {
-                          $('[data-toggle="tooltip"]').tooltip()
+                          $('[data-toggle="tooltip"]').tooltip();
                         })
                         $('.icon-tooltip').tooltip();
                     }, 1000);
@@ -1066,7 +1079,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             return shorterSplit.join(". ") + "...";
         },
         
-        structureAllText: function(cardData) {
+        structureAllCardText: function(cardData) {
           if (cardData.textStructures) {
                 for (i=0; i < cardData.textStructures.length; i++) {
                     console.log(cardData.textStructures[i]);
@@ -1181,7 +1194,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     var key = snapshot.key();
                     console.log(snapshot.val());
                     var bio = snapshot.val().bio.value;
-                    var cardData = service.structureAllText(snapshot.val());
+                    var cardData = service.structureAllCardText(snapshot.val());
                     service.firebaseCards.child(key).set(cardData);
                     if (service.cardImported(key)) {
                         service.reImportCard(key);
@@ -1569,51 +1582,72 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         
         
         
-        // NEW doing new data manipulation here instead of server
+        // NEW - doing new data manipulation here instead of server
         
-        changeRecord: function(data, recordType, changeType, settings) { //This comes straight from the client
+        changeRecord: function(data, recordType, changeType, settings) { 
             var deferred = $q.defer();
             //Should check here whether it already exists & other tests (e.g. keyword length > 1)
-            changeType=='create' ? data = setDefaults(data, getDefaults(recordType)) : null ;
-            settings = setDefaultFollowUps(recordType, changeType, settings);
-            data = specialRecordHandling(data, recordType, changeType);
+            changeType=='create' ? data = service.setDefaults(data, service.getDefaults(recordType)) : null ;
+            settings = service.setDefaultFollowUps(recordType, changeType, settings);
+            data = service.specialRecordHandling(data, recordType, changeType);
             
             console.log(changeType);
             console.log(settings);
             console.log(data);
             
-            // connectToFirebase()
-            changeFirebaseRecord(data, changeType)
+            service.changeFirebaseRecord(data, recordType, changeType)
             .then( function() { //This assumes none of these need to wait for any of the others
                 if (changeType=='create') { data.objectID = record.key(); }
                 // actionFollowUp(data, recordType, settings.followUp.action);
                 // dataFollowUp(data, recordType, settings.followUp.data);
-                changeAlgolia(data, recordType, changeType);
+                service.changeAlgolia(data, recordType, changeType);
+                console.log('resolving changeRecord', data);
                 deferred.resolve(data);
                 });
             return deferred.promise;
         },
         
-        changeFirebaseRecord: function(data, changeType) {
+        getCorrectFirebaseSet: function(recordType) {
+            var firebaseSet;
+            switch (recordType) {
+                case 'user':
+                    firebaseSet = service.firebaseUsers;
+                    break;
+                case 'card':
+                    firebaseSet = service.firebaseCards;
+                    break;
+                case 'identity':
+                    firebaseSet = service.firebaseIdentities;
+                    break;
+                case 'keyword':
+                    firebaseSet = service.firebaseKeywords;
+                    break;
+            }
+            return firebaseSet;
+        },
+        
+        changeFirebaseRecord: function(data, recordType, changeType) {
             var deferred = $q.defer();
+            var key = null;
             switch (changeType) {
                 case 'create':
-                    var record = theseFirebaseRecords.push();
-                    record.objectID = record.key(); //Seems like this shouldn't work but it's what we had in the frontend before
-                    record.set(record, onFirebaseChange(error));
+                    var record = service.getCorrectFirebaseSet(recordType).push();
+                    key = record.objectID = record.key(); //Seems like this shouldn't work but it's what we had in the frontend before
+                    record.set(record, onFirebaseChange);
                     break;
                 case 'update':
-                    theseFirebaseRecords.child(data.objectID).update(data, onFirebaseChange(error));
+                    service.getCorrectFirebaseSet(recordType).child(data.objectID).update(data, onFirebaseChange);
                     break;
                 case 'delete':
-                    theseFirebaseRecords.child(data.objectID).remove(data, onFirebaseChange(error));
+                    service.getCorrectFirebaseSet(recordType).child(data.objectID).remove(data, onFirebaseChange);
                     break;
             }
             function onFirebaseChange(error) {
                 if(error) {
                     deferred.reject();
                 } else {
-                    deferred.resolve(record.key());
+                    console.log('resolving changeFirebaseRecord');
+                    deferred.resolve(key);
                 }
             }
             return deferred.promise;
@@ -1673,12 +1707,12 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         cardFormatDefaults: function(data) {
             switch (data.format) {
                 case 'profile':
-                    data = setDefaults(data, [
-                        ['bio', {value: ''}]
+                    data = service.setDefaults(data, [
+                        ['bio', {value: '', structure: []}]
                     ]);
                     break;
                 case 'list':
-                    data = setDefaults(data, [
+                    data = service.setDefaults(data, [
                         [ 'intro', {value: ''} ],
                         [ 'list', [{value: ''}] ],
                         [ 'outro', {value: ''} ]
@@ -1691,9 +1725,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         specialRecordHandling: function(data, recordType, changeType) {
             switch (recordType) {
                 case 'card':
-                    if (changeType=='create') { data = cardFormatDefaults(data); }
-                    // Temporarily disabled all text sturtcuring while testing
-                    // data = structureAllCardText(data);
+                    if (changeType=='create') { data = service.cardFormatDefaults(data); }
+                    data = service.structureAllCardText(data);
                     break;
             }
             return data;
@@ -1898,6 +1931,7 @@ app.directive('ngCard', ['Cards', function(Cards) {
             };
             scope.toggleEdit = function(key) {
                 console.log('toggling: ', key);
+                scope.editing = !scope.editing;
                 return Cards.toggleEditCard(key);
             };
             scope.close = function(key) {
@@ -1905,7 +1939,8 @@ app.directive('ngCard', ['Cards', function(Cards) {
                 return Cards.close(key);
             };
             scope.update = function(key, card) {
-                return Cards.updateCard(key, card);
+                Cards.updateCard(key, card);
+                scope.card.editing = false;
             };
             scope.delete = function(key, card) {
                 return Cards.deleteCard(key, card);
