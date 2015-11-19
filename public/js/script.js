@@ -614,110 +614,49 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 });
             });
         },
-
+        
         addNewCard: function(cardData, format, open, autoPopulate, edit) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: addNewCard', cardData, open, autoPopulate, edit);
-            //This needs to be passed into the function, not created here
-            var identityKey = undefined;
-
-
+            var deferred = $q.defer();
             cardData.dateCreated = Date.now();
             cardData.authorId = service.loginData.uid || null;
-            cardData.sources = [];
-
-            cardData.format = format; //prompt("What format should the new card take?", "profile");
-
-            if (cardData.format === undefined) {
-                cardData.format = 'profile';
-            }
-            if (cardData.title === undefined) {
-                cardData.title = '';
-            }
-            if (cardData.bio === undefined) {
-                cardData.bio = {
-                    value: '',
-                    structure: []
-                };
-            }
+            cardData.format = format;
             
-            if (format=="list") { //Need to do all this properly
-                cardData.intro = {value: ''};
-                cardData.list = [{value: ''}];
-                cardData.outro = {value: ''};
-            }
+            cardData = angular.fromJson(angular.toJson(cardData));
             
-            cardData = service.structureAllCardText(cardData);
-            
-            cardData.id = cardData.title.replace(" ", "-").toLowerCase();
-            console.log('cardData', cardData);
-            var newCard = service.firebaseCards.push();
-            var key = newCard.key();
-            cardData.objectID = key;
-            newCard.set(cardData, function(error) {
-                console.log('now set');
-                // if (cardData.title.length > 0) {
-                //     $scope.showSimpleToast("Success! You've added a new card called " + card.data.title);
-                // }
-                // else {
-                //     $scope.showSimpleToast("Success! You've added a new card.");
-                // }
-                console.log('edit:', edit);
-                if (identityKey === undefined) { //$scope.addNewIdentity will sort the opening
-                    service.addNewIdentity(key, cardData.title).then(function(identityKey) {
-                        open ? service.open(identityKey, edit) : null;
-                    });
-                }
-                else {
-                    open ? service.open(identityKey, edit) : null;
-                }
-
-                service.algoliaAdd(cardData, key); // This needs to use callbacks etc
+            service.changeRecord(cardData, 'card', 'create', {}) // Could potentially pass in a function to be run between push() and set() - e.g. addNewIdentity()
+            .then(function(newCardData) { // Assumes card needs to create a new identity
+                cardData = newCardData;
+                return service.addNewIdentity(cardData.objectID, cardData.title, false);
+            }).then(function(identityKey) {
+                cardData.identity = identityKey;
+                return service.updateCard(cardData.objectID, cardData);
+            }).then(function() {
+                return open ? service.open(cardData.identity, edit) : $q(function(resolve, reject) {resolve()}) ;
+            }).then(function() {
+                deferred.resolve(cardData);
             });
+            return deferred.promise;
         },
-
-        addNewIdentity: function(initialCardKey, initialKeyword, thisIsInitial) { //Only call this function once the card has been created
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: addNewIdentity', initialCardKey, initialKeyword);
-            return $q(function(resolve, reject) {
-                var newIdentity = service.firebaseIdentities.push();
-                var identityKey = newIdentity.key();
-                newIdentity.set({
-                    cards: [{
-                        key: initialCardKey,
-                        rank: 0
-                    }]
-                }, function(error) {
-                    var initialCard = service.firebaseCards.child(initialCardKey);
-                    initialCard.update({
-                        identity: identityKey
-                    }, function(error) {
-                        service.getCard(initialCardKey, true)
-                            .then(function() {
-                                if (initialKeyword.length > 0) {
-                                    var newkeywordData = {
-                                        keyword: initialKeyword,
-                                        identityRef: identityKey
-                                    };
-                                    service.addNewKeyword(newkeywordData, false).then(function() {
-                                        resolve(identityKey);
-                                    });
-                                }
-                                else {
-                                    resolve(identityKey);
-                                }
-                            });
-                    });
-                });
-                if (thisIsInitial) {
-                    service.firebaseMain.child("settings").update({initialIdentity: identityKey}, function() {
-                        console.log(identityKey);
-                    });
-                }
-                
-
-                // function afterNewIdentity() {
-
-                // }
+        
+        addNewIdentity: function(initialCardKey, initialKeyword, thisIsInitial) {
+            var deferred = $q.defer();
+            var identityData = {
+                cards: [{
+                    key: initialCardKey,
+                    rank: 0
+                }]
+            };
+            service.changeRecord(identityData, 'identity', 'create', {})
+            .then(function(newIdentityData) {
+                var newkeywordData = {
+                    keyword: initialKeyword,
+                    identityRef: newIdentityData.objectID
+                };
+                service.addNewKeyword(newkeywordData, false);
+                thisIsInitial ? service.firebaseMain.child("settings").update({initialIdentity: newIdentityData.objectID}) : null ;
+                deferred.resolve(newIdentityData.objectID);
             });
+            return deferred.promise;
         },
 
         appendKeyword: function(keyword, identityKey) {
@@ -735,73 +674,44 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             });
             return newKeywordData;
         },
-
-        addNewKeyword: function(newkeyword, showToast) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: addNewKeyword', newkeyword, showToast);
-            return $q(function(resolve, reject) {
-                service.firebaseKeywords.orderByChild("keyword").equalTo(newkeyword.keyword).once('value', function(snapshot) {
-                    if (snapshot.val() !== null) {
-                        console.log('keyword with same string already exists');
-                        reject();
-                    }
-                    else {
-                        if (newkeyword.keyword.length < 1) {
-                            reject();
-                        }
-                        newkeyword.keywordLength = newkeyword.keyword.length * -1;
-                        var newKeyword = service.firebaseKeywords.push();
-                        var key = newKeyword.key()
-                        newKeyword.setWithPriority(newkeyword, newkeyword.keywordLength, function(error) { //Need to retrospectively set priorities for existing keywords (one time only)
-                            newkeyword.keyword.length ? service.updateBiosFromKeyword(newkeyword.keyword) : null; //Maybe this should be calling back too
-                            // if (showToast) {
-                            //     $scope.showSimpleToast("Success! You've added the keyword \"" + newkeyword.keyword + "\"");
-                            // }
-                            resolve(newKeyword, key);
-                        });
-                    }
-                });
+        
+        testForRepeat: function(fbRef, myChild, myEqualTo) {
+            var deferred = $q.defer();
+            fbRef.orderByChild(myChild).equalTo(myEqualTo).once('value', function(snapshot) {
+                if (snapshot.val() !== null) {
+                    console.log('object with same ' + myChild + ' already exists'); deferred.reject();
+                } else {
+                    deferred.resolve();
+                }
             });
+            return deferred.promise;
         },
         
-        updateCard: function(key, card) {
+        addNewKeyword: function(keywordData, showToast) {
             var deferred = $q.defer();
-            card = angular.fromJson(angular.toJson(card));
-            service.appendKeyword(card.data.title, card.data.identity);
-            service.changeRecord(card.data, 'card', 'update', {})
+            if (keywordData.keyword.length < 2) { console.log('Keyword is too short'); deferred.reject(); }
+            service.testForRepeat(service.firebaseKeywords, 'keyword', keywordData.keyword)
             .then(function() {
-                console.log('reImporting....');
-                service.reImportCard(key).then(function() {
-                    deferred.resolve();
-                });
+                keywordData.keywordLength = keywordData.keyword.length * -1;
+                return service.changeRecord(keywordData, 'keyword', 'create', { priority: keywordData.keywordLength });
+            }).then(function(newKeywordData) {
+                service.updateBiosFromKeyword(newKeywordData.keyword);
+                deferred.resolve(newKeywordData);
+            });
+            return deferred.promise;
+        },
+        
+        updateCard: function(key, cardData) {
+            var deferred = $q.defer();
+            cardData = angular.fromJson(angular.toJson(cardData));
+            service.appendKeyword(cardData.title, cardData.identity);
+            service.changeRecord(cardData, 'card', 'update', {})
+            .then(function() {
+                return service.reImportCard(key);
+            }).then(function() {
+                deferred.resolve();
             });
             return deferred.promised;
-        },
-
-        OLD_updateCard: function(key, card) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateCard', key, card);
-            
-            var cardData = card.data;
-            cardData = service.structureAllCardText(cardData);
-            
-            card = angular.fromJson(angular.toJson(card)); // This removes $$hashKey etc so Firebase accepts it
-            // var identity = service.identities[service.identityKeyPos(card.data.identity)];
-            // var hasKeyword = $.grep(identity.keywords, function(e) {
-            //     return e.data.identityRef == identity.data.objectID;
-            // });
-            // if (hasKeyword.length == 0) {
-            service.appendKeyword(card.data.title, card.data.identity);
-            // }
-
-            console.log('about to update:', card);
-            service.firebaseCards.child(key).update(card.data, function(error) {
-                service.algoliaUpdate(key, card); // This needs to use callbacks etc
-                service.reImportCard(key); // Is this necessary?
-                card.editing ? service.toggleEditCard(key) : null;
-
-                $rootScope.$apply(); //Looks like this might be needed in other places too - maybe an Angula $watch function on service.cards?
-
-                // service.showSimpleToast("Success! You've updated the card " + card.data.title); //Shouldn't really display this until algoliaUpdate and reImportCard are complete
-            });
         },
 
         deleteCard: function(key, card) {
@@ -868,6 +778,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         getCardFromIdentity: function(identity) {
+            //Assumes for now that you don't need to import anything
             console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getCardFromIdentity', identity);
             var cardKey = identity.data.cards[0].key; //Currently just selects the first card in the identity's 'cards' array
             return cardKey;
@@ -963,39 +874,41 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         open: function(identityKey, edit) {
+            var deferred = $q.defer();
             console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: open', identityKey, edit);
-            console.log('layer1');
-            service.getIdentity(identityKey).then(function(identity) {
-                console.log('layer2');
-                var cardKey = service.getCardFromIdentity(identity);
-                service.getCard(cardKey, true).then(function(card) {
-                    console.log('layer3');
-                    service.moveCardToFront(card.objectID);
-                    console.log('edit:', edit);
-                    console.log('card.editing:', card.editing);
-                    console.log('logic:', edit && !card.editing);
-                    edit && !card.editing ? service.toggleEditCard(cardKey) : null;
-                    
-                    
-                    setTimeout(function(){
-                        $(function () {
-                          $('[data-toggle="tooltip"]').tooltip();
-                        })
-                        $('.icon-tooltip').tooltip();
-                    }, 1000);
-                    
+            var cardKey;
+            service.getIdentity(identityKey)
+            .then(function(identity) {
+                cardKey = service.getCardFromIdentity(identity);
+                return service.getCard(cardKey, true);
+            }).then(function(card) {
+                service.moveCardToFront(card.objectID);
+                console.log('edit:', edit);
+                console.log('card.editing:', card.editing);
+                console.log('logic:', edit && !card.editing);
+                edit && !card.editing ? service.toggleEditCard(cardKey) : null;
+                
+                deferred.resolve();
+                
+                setTimeout(function(){
+                    $(function () {
+                      $('[data-toggle="tooltip"]').tooltip();
+                    })
+                    $('.icon-tooltip').tooltip();
+                }, 1000);
+                
 
-                    //The stuff below is for importing the next set of cards before you click on any of them - needs testing and making sure it happens AFTER this card has loaded properly, so user doesn't notice
-                    // var linkedCardsToImport = $scope.getLinksfromText($scope.localCards[localCardRef.ref].bio.structure);
-                    // for (i = 0; i < linkedCardsToImport.length; i++) {
-                    //     $scope.getIdentity(linkedCardsToImport[i]).then(function(localIdentityRef3) {
-                    //         cardKey2 = $scope.localIdentities[localIdentityRef3.ref].cards[0].key;
-                    //         $scope.getCard(cardKey2).then(function(localCardRef2) {
-                    //         });
-                    //     });
-                    // }
-                });
+                //The stuff below is for importing the next set of cards before you click on any of them - needs testing and making sure it happens AFTER this card has loaded properly, so user doesn't notice
+                // var linkedCardsToImport = $scope.getLinksfromText($scope.localCards[localCardRef.ref].bio.structure);
+                // for (i = 0; i < linkedCardsToImport.length; i++) {
+                //     $scope.getIdentity(linkedCardsToImport[i]).then(function(localIdentityRef3) {
+                //         cardKey2 = $scope.localIdentities[localIdentityRef3.ref].cards[0].key;
+                //         $scope.getCard(cardKey2).then(function(localCardRef2) {
+                //         });
+                //     });
+                // }
             });
+            return deferred.promise;
         },
 
         close: function(key) {
@@ -1595,9 +1508,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             console.log(settings);
             console.log(data);
             
-            service.changeFirebaseRecord(data, recordType, changeType)
+            service.changeFirebaseRecord(data, recordType, changeType, settings)
             .then( function() { //This assumes none of these need to wait for any of the others
-                if (changeType=='create') { data.objectID = record.key(); }
                 // actionFollowUp(data, recordType, settings.followUp.action);
                 // dataFollowUp(data, recordType, settings.followUp.data);
                 service.changeAlgolia(data, recordType, changeType);
@@ -1608,32 +1520,26 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
         
         getCorrectFirebaseSet: function(recordType) {
-            var firebaseSet;
-            switch (recordType) {
-                case 'user':
-                    firebaseSet = service.firebaseUsers;
-                    break;
-                case 'card':
-                    firebaseSet = service.firebaseCards;
-                    break;
-                case 'identity':
-                    firebaseSet = service.firebaseIdentities;
-                    break;
-                case 'keyword':
-                    firebaseSet = service.firebaseKeywords;
-                    break;
-            }
-            return firebaseSet;
+            var firebaseSets = {
+                'user': 'firebaseUsers',
+                'card': 'firebaseCards',
+                'identity': 'firebaseIdentities',
+                'keyword': 'firebaseKeywords'
+            };
+            return service[firebaseSets[recordType]];
         },
         
-        changeFirebaseRecord: function(data, recordType, changeType) {
+        changeFirebaseRecord: function(data, recordType, changeType, settings) {
             var deferred = $q.defer();
-            var key = null;
             switch (changeType) {
                 case 'create':
                     var record = service.getCorrectFirebaseSet(recordType).push();
-                    key = record.objectID = record.key(); //Seems like this shouldn't work but it's what we had in the frontend before
-                    record.set(record, onFirebaseChange);
+                    data.objectID = record.key();
+                    if (settings.priority) {
+                        record.setWithPriority(data, settings.priority, onFirebaseChange);
+                    } else {
+                        record.set(data, onFirebaseChange);
+                    }
                     break;
                 case 'update':
                     service.getCorrectFirebaseSet(recordType).child(data.objectID).update(data, onFirebaseChange);
@@ -1647,7 +1553,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     deferred.reject();
                 } else {
                     console.log('resolving changeFirebaseRecord');
-                    deferred.resolve(key);
+                    deferred.resolve(data);
                 }
             }
             return deferred.promise;
@@ -1939,7 +1845,7 @@ app.directive('ngCard', ['Cards', function(Cards) {
                 return Cards.close(key);
             };
             scope.update = function(key, card) {
-                Cards.updateCard(key, card);
+                Cards.updateCard(key, card.data);
                 scope.card.editing = false;
             };
             scope.delete = function(key, card) {
