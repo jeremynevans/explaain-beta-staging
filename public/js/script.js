@@ -1569,6 +1569,162 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         
         
         
+        // NEW doing new data manipulation here instead of server
+        
+        changeRecord: function(data, recordType, changeType, settings) { //This comes straight from the client
+            var deferred = $q.defer();
+            //Should check here whether it already exists & other tests (e.g. keyword length > 1)
+            changeType=='create' ? data = setDefaults(data, getDefaults(recordType)) : null ;
+            settings = setDefaultFollowUps(recordType, changeType, settings);
+            data = specialRecordHandling(data, recordType, changeType);
+            
+            console.log(changeType);
+            console.log(settings);
+            console.log(data);
+            
+            // connectToFirebase()
+            changeFirebaseRecord(data, changeType)
+            .then( function() { //This assumes none of these need to wait for any of the others
+                if (changeType=='create') { data.objectID = record.key(); }
+                // actionFollowUp(data, recordType, settings.followUp.action);
+                // dataFollowUp(data, recordType, settings.followUp.data);
+                changeAlgolia(data, recordType, changeType);
+                deferred.resolve(data);
+                });
+            return deferred.promise;
+        },
+        
+        changeFirebaseRecord: function(data, changeType) {
+            var deferred = $q.defer();
+            switch (changeType) {
+                case 'create':
+                    var record = theseFirebaseRecords.push();
+                    record.objectID = record.key(); //Seems like this shouldn't work but it's what we had in the frontend before
+                    record.set(record, onFirebaseChange(error));
+                    break;
+                case 'update':
+                    theseFirebaseRecords.child(data.objectID).update(data, onFirebaseChange(error));
+                    break;
+                case 'delete':
+                    theseFirebaseRecords.child(data.objectID).remove(data, onFirebaseChange(error));
+                    break;
+            }
+            function onFirebaseChange(error) {
+                if(error) {
+                    deferred.reject();
+                } else {
+                    deferred.resolve(record.key());
+                }
+            }
+            return deferred.promise;
+        },
+        
+        getDefaults: function(recordType) {
+            var allDefaults = {
+                'user': [
+                ],
+                'card': [
+                    [ 'authorId', null ],
+                    [ 'sources', [] ],
+                    [ 'format', 'profile' ],
+                    [ 'title', '' ]
+                ],
+                'identity': [
+                ],
+                'keyword': [
+                ],
+            };
+            return allDefaults[recordType];
+        },
+        
+        setDefaults: function(myObject, defaults) {
+            for (var i in defaults) {
+                myObject[defaults[i][0]] = myObject[defaults[i][0]] || defaults[i][1];
+            }
+            return myObject;
+        },
+        
+        setDefaultFollowUps: function(recordType, changeType, settings) {
+            var defaultDataFollowUps = {
+                create: {
+                    card: {
+                        changeType: 'create',
+                        recordType: 'identity'
+                    },
+                    identity: {
+                        changeType: 'create',
+                        recordType: 'keyword'
+                    }
+                }
+            };
+            var defaultActionFollowUps = {
+                create: {
+                },
+                update: {
+                }
+            };
+            
+            // Temporarily disabled all followups while testing
+            // !settings.followUp.data   ? settings.followUp.data   =  defaultDataFollowUps[changeType][recordType]   : null ;
+            // !settings.followUp.action ? settings.followUp.action =  defaultActionFollowUps[changeType][recordType] : null ;
+            return settings;
+        },
+        
+        cardFormatDefaults: function(data) {
+            switch (data.format) {
+                case 'profile':
+                    data = setDefaults(data, [
+                        ['bio', {value: ''}]
+                    ]);
+                    break;
+                case 'list':
+                    data = setDefaults(data, [
+                        [ 'intro', {value: ''} ],
+                        [ 'list', [{value: ''}] ],
+                        [ 'outro', {value: ''} ]
+                    ]);
+                    break;
+            }
+            return data;
+        },
+        
+        specialRecordHandling: function(data, recordType, changeType) {
+            switch (recordType) {
+                case 'card':
+                    if (changeType=='create') { data = cardFormatDefaults(data); }
+                    // Temporarily disabled all text sturtcuring while testing
+                    // data = structureAllCardText(data);
+                    break;
+            }
+            return data;
+        },
+        
+        actionFollowUp: function(data, recordType, followUp) {
+            //Need Stuff Here
+        },
+        
+        dataFollowUp: function(prevData, prevRecordType, followUp) {
+            var followUpData = {
+                card: {
+                    identity: {
+                        cards: [prevData.objectID]
+                    }
+                },
+                identity: {
+                    keyword: {
+                        identity: prevData.objectID
+                    }
+                }
+            };
+            
+            // Temporarily disabled all data followups while testing
+            // changeRecord(followUpData[prevRecordType][followUp.recordType], followUp.recordType, followUp.updateType);
+        },
+        
+        changeAlgolia: function(data, recordType, changeType) {
+            //Need Stuff Here
+        },
+        
         
         //NEW (using backend) data maniuplation
         
