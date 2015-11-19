@@ -1,9 +1,9 @@
 function clog(myText) {
-    console.log(myText);
+    //console.log(myText);
 };
 
 function clogyo() {
-    console.log('yo');
+    //console.log('yo');
 };
 
 var currentTimestamp = Date.now();
@@ -37,7 +37,7 @@ app.controller('MainCtrl', ['$scope', '$timeout', '$http', '$mdToast', '$mdSiden
 
     // Post.query(function(data) {
     //     $scope.posts = data;
-    //     console.log(data);
+    //     //console.log(data);
     // });
 
     // function myFunction() {
@@ -48,7 +48,7 @@ app.controller('MainCtrl', ['$scope', '$timeout', '$http', '$mdToast', '$mdSiden
     // myFunction();
 
     // function myFunction1(data) {
-    //     console.log('data2', data);
+    //     //console.log('data2', data);
     // }
 
     //Should these be in a service?
@@ -119,8 +119,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
 
 
         checkServiceWorks: function() {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: checkServiceWorks');
-            console.log('Service works!');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: checkServiceWorks');
+            //console.log('Service works!');
         },
         
         bootUp: function() {
@@ -132,14 +132,14 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
         
         bootUpServices: function(usingTeams) {
-            console.log('bootUpServices');
+            //console.log('bootUpServices');
             service.usingTeams = usingTeams;
             service.connectToFirebase(service.fbInstance)
             if (usingTeams) {
                 service.logMeIn('twitter')
                 .then(service.getThisUserTeam)
                 .then(function(team) {
-                    console.log('just after team');
+                    //console.log('just after team');
                     if (!team) {
                         $('#createTeamModal').modal();
                     } else {
@@ -175,7 +175,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
         
         bootUpRecords: function(firstTime) {
-            console.log('bootUpRecords');
+            //console.log('bootUpRecords');
             service.serverConnectToRecords(service.usingTeams)
             .then(function(algoliaIndex) {
                 service.connectToFirebaseRecords(firstTime);
@@ -186,8 +186,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
        },
 
         connectToFirebase: function(fbInstance) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: connectToFirebase');
-            console.log(fbInstance);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: connectToFirebase');
+            //console.log(fbInstance);
             service.firebaseRef = new Firebase(fbInstance);
             service.firebaseUsers = service.firebaseRef.child("users");
             if (service.usingTeams) {
@@ -196,7 +196,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         connectToAlgolia: function() { // Needs to be called on page load
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: connectToAlgolia');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: connectToAlgolia');
             service.clientAlgolia = algoliasearch('RR6V7DE8C8', service.algoliaSearchAPIKey); /* global algoliasearch */
         },
         
@@ -212,7 +212,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 }).then(function() {
                         return service.getInitialIdentity(null);
                 }).then(function() {
-                    console.log("service.initialIdentity: " + service.initialIdentity);
+                    //console.log("service.initialIdentity: " + service.initialIdentity);
                     service.updateAllText();
                     service.initialiseFirstCard();
                 });
@@ -224,15 +224,15 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         connectToAlgoliaIndex: function(algoliaIndex) { // Needs to be called on page load
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: connectToAlgoliaIndex');
-            console.log(algoliaIndex);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: connectToAlgoliaIndex');
+            //console.log(algoliaIndex);
             service.algoliaIndex = service.clientAlgolia.initIndex(algoliaIndex);
-            console.log(service.algoliaIndex);
+            //console.log(service.algoliaIndex);
         },
 
 
         search: function(query, initRun) {
-            console.log('query', query);
+            //console.log('query', query);
             var deferred = $q.defer();
             var parameters = {
                 hitsPerPage: 20
@@ -251,15 +251,15 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         initialiseFirstCard: function() {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: initialiseFirstCard');
-            console.log('opening first card');
-            console.log(initialIdentity);
-            console.log('initialiseFirstCard');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: initialiseFirstCard');
+            //console.log('opening first card');
+            //console.log(initialIdentity);
+            //console.log('initialiseFirstCard');
             service.open(service.initialIdentity, false);
         },
 
         removeSpinner: function() {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: removeSpinner');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: removeSpinner');
             if (firstCard) {
                 firstCard = false;
                 var element = document.getElementById("spinner");
@@ -268,32 +268,32 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         cardKeyPos: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: cardKeyPos', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: cardKeyPos', key);
             var card = service.cardImported(key);
             return service.cards.indexOf(card);
         },
 
         identityKeyPos: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: identityKeyPos', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: identityKeyPos', key);
             var identity = service.identityImported(key);
             return service.identities.indexOf(identity);
         },
 
         keywordKeyPos: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: keywordKeyPos', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: keywordKeyPos', key);
             var keyword = service.keywordImported(key);
             return service.keywords.indexOf(keyword);
         },
 
         userKeyPos: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: userKeyPos', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: userKeyPos', key);
             var user = service.userImported(key);
             return service.users.indexOf(user);
         },
 
         cardImported: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: cardImported', key);
-            console.log('key', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: cardImported', key);
+            //console.log('key', key);
             var card = $.grep(service.cards, function(e) {
                 return e.objectID == key;
             })[0];
@@ -304,7 +304,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         identityImported: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: identityImported', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: identityImported', key);
             var identity = $.grep(service.identities, function(e) {
                 return e.objectID == key;
             })[0];
@@ -315,7 +315,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         keywordImported: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: keywordImported', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: keywordImported', key);
             var keyword = $.grep(service.keywords, function(e) {
                 return e.objectID == key;
             })[0];
@@ -323,20 +323,20 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         userImported: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: userImported', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: userImported', key);
             var user = $.grep(service.users, function(e) {
                 return e.data.uid == key;
             })[0];
-            console.log(user);
+            //console.log(user);
             return user;
         },
         
         getInitialIdentity: function(team) {
-            console.log("team: " + team);
+            //console.log("team: " + team);
             return $q(function(resolve, reject) {
                 var tempFirebaseMain = team ? service.firebaseTeams.child(team) : service.firebaseMain;
                 tempFirebaseMain.child("settings").once('value', function(snapshot) {
-                    console.log(snapshot.val());
+                    //console.log(snapshot.val());
                     service.initialIdentity = snapshot.val().initialIdentity;
                     resolve();
                 });
@@ -344,34 +344,34 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         getCard: function(key, reImport) { // reImport should be false if this is being called constantly
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getCard', key, reImport);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getCard', key, reImport);
             return $q(function(resolve, reject) {
                 var card = service.cardImported(key);
-                console.log('card1', card);
+                //console.log('card1', card);
                 if (card) {
-                    console.log('reImport', reImport);
+                    //console.log('reImport', reImport);
                     if (reImport) {
-                        console.log('yep');
+                        //console.log('yep');
                         service.reImportCard(key).then(function() {
-                            console.log('service.cards 1');
-                            console.log(service.cards);
+                            //console.log('service.cards 1');
+                            //console.log(service.cards);
                             resolve(card);
                         });
                     }
                     else {
-                        console.log('nope');
-                            console.log('service.cards 2');
-                            console.log(service.cards);
+                        //console.log('nope');
+                            //console.log('service.cards 2');
+                            //console.log(service.cards);
                         resolve(card);
                     }
                 }
                 else {
                     var promise = service.importCard(key);
                     promise.then(function(tempCard) {
-                        console.log('tempCard', tempCard);
+                        //console.log('tempCard', tempCard);
                         card = tempCard;
-                            console.log('service.cards 3');
-                            console.log(service.cards);
+                            //console.log('service.cards 3');
+                            //console.log(service.cards);
                         resolve(card);
                     });
                 }
@@ -379,7 +379,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         getIdentity: function(key) { //Needs reImport parameter?
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getIdentity', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getIdentity', key);
             return $q(function(resolve, reject) {
                 var identity = service.identityImported(key);
                 if (identity) {
@@ -397,7 +397,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         getKeyword: function(key) { //Not yet used, and may well not be while all text structuring is done on the front end
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getKeyword', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getKeyword', key);
             return $q(function(resolve, reject) {
                 var keyword = service.keywordImported(key);
                 if (keyword) {
@@ -415,7 +415,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         getUser: function(key) { //Needs reImport parameter?
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getUser', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getUser', key);
             return $q(function(resolve, reject) {
                 if (!key) {
                     resolve(null);
@@ -429,8 +429,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                         var promise = service.importUser(key);
                         promise.then(function(tempUser) {
                             user = tempUser;
-                            console.log('user');
-                            console.log(user);
+                            //console.log('user');
+                            //console.log(user);
                             resolve(user);
                         });
                     }
@@ -440,12 +440,12 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
         
         getThisUserTeam: function() {
-            console.log('getThisUserTeam');
+            //console.log('getThisUserTeam');
             var deferred = $q.defer();
             var key = service.loginData.uid;
-            console.log(key);
+            //console.log(key);
             service.getUserTeam(key).then(function(team) {
-                console.log(team);
+                //console.log(team);
                 deferred.resolve(team);
             });
             return deferred.promise;
@@ -461,10 +461,10 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         importCard: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: importCard', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: importCard', key);
             return $q(function(resolve, reject) {
                 service.firebaseCards.child(key).once('value', function(snapshot) {
-                        console.log(snapshot.val());
+                        //console.log(snapshot.val());
                         var newCard = {
                             data: snapshot.val(),
                             objectID: snapshot.key(),
@@ -476,10 +476,10 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                         service.getIdentity(newCard.data.identity).then(function() {
                             service.getUser(newCard.data.authorId).then(function(user) {
                                 // newCard.author = user;
-                                console.log('user: ', user);
+                                //console.log('user: ', user);
                                 var foundCard = service.cardImported(key); //This checks again at the last minute - is this really the most efficient way of doing it?
-                                console.log('foundCard test: ' + key);
-                                console.log(foundCard);
+                                //console.log('foundCard test: ' + key);
+                                //console.log(foundCard);
                                 service.removeSpinner();
                                 if (!foundCard) {
                                     var length = service.cards.push(newCard);
@@ -498,7 +498,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         importIdentity: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: importIdentity', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: importIdentity', key);
             return $q(function(resolve, reject) {
                 service.firebaseIdentities.child(key).once('value', function(snapshot) {
                     service.getIdentityKeywords(key).then(function(keywordsTemp) {
@@ -508,8 +508,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                             keywords: keywordsTemp
                         };
                         var foundIdentity = service.identityImported(key); //This checks again at the last minute - is this really the most efficient way of doing it?
-                        console.log('foundIdentity test: ' + key);
-                        console.log(foundIdentity);
+                        //console.log('foundIdentity test: ' + key);
+                        //console.log(foundIdentity);
                         if (!foundIdentity) {
                             var length = service.identities.push(newIdentity);
                             resolve(service.identities[length - 1]);
@@ -524,7 +524,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         importKeyword: function(key) { //Not yet used, and may well not be while all text structuring is done on the front end
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: importKeyword', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: importKeyword', key);
             return $q(function(resolve, reject) {
                 service.firebaseKeywords.child(key).once('value', function(snapshot) {
 
@@ -544,7 +544,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         importUser: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: importUser', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: importUser', key);
             return $q(function(resolve, reject) {
                 service.firebaseUsers.child(key).once('value', function(snapshot) {
 
@@ -562,7 +562,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         reImportCard: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: reImportCard', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: reImportCard', key);
             return $q(function(resolve, reject) {
                 service.firebaseCards.child(key).once('value', function(snapshot) {
                     service.cards[service.cardKeyPos(key)].data = snapshot.val();
@@ -577,15 +577,15 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         cloneAllCards: function(cardSet, initialIdentity) {
             return $q(function(resolve, reject) {
                 cardSet.on('child_added', function(snapshot) {
-                    console.log(initialIdentity);
-                    console.log(snapshot.val().identity);
+                    //console.log(initialIdentity);
+                    //console.log(snapshot.val().identity);
                     if (snapshot.val().identity == initialIdentity) {
                         var thisIsInitial = true;
-                        console.log('the one');
+                        //console.log('the one');
                     }
                     service.cloneCard(snapshot.val(), thisIsInitial).then(function() {
                         if (thisIsInitial) {
-                            console.log('resolving');
+                            //console.log('resolving');
                             resolve();
                         }
                     });
@@ -594,7 +594,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             
             //-----------Still haven't figured out how to do this....
             // return $q.all(myPromises).then(function() {
-            //     console.log('resolving');
+            //     //console.log('resolving');
             // });
         },
         
@@ -608,7 +608,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 var key = newCard.key();
                 newCardData.objectID = key;
                 newCard.set(newCardData, function(error) {
-                    console.log(newCardData);
+                    //console.log(newCardData);
                     service.addNewIdentity(key, newCardData.title, thisIsInitial);
                     service.algoliaAdd(newCardData, key); // This needs to use callbacks etc
                     resolve();
@@ -617,7 +617,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         addNewCard: function(cardData, format, open, autoPopulate, edit) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: addNewCard', cardData, open, autoPopulate, edit);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: addNewCard', cardData, open, autoPopulate, edit);
             //This needs to be passed into the function, not created here
             var identityKey = undefined;
 
@@ -650,19 +650,19 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             cardData = service.structureAllText(cardData);
             
             cardData.id = cardData.title.replace(" ", "-").toLowerCase();
-            console.log('cardData', cardData);
+            //console.log('cardData', cardData);
             var newCard = service.firebaseCards.push();
             var key = newCard.key();
             cardData.objectID = key;
             newCard.set(cardData, function(error) {
-                console.log('now set');
+                //console.log('now set');
                 // if (cardData.title.length > 0) {
                 //     $scope.showSimpleToast("Success! You've added a new card called " + card.data.title);
                 // }
                 // else {
                 //     $scope.showSimpleToast("Success! You've added a new card.");
                 // }
-                console.log('edit:', edit);
+                //console.log('edit:', edit);
                 if (identityKey === undefined) { //$scope.addNewIdentity will sort the opening
                     service.addNewIdentity(key, cardData.title).then(function(identityKey) {
                         open ? service.open(identityKey, edit) : null;
@@ -677,7 +677,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         addNewIdentity: function(initialCardKey, initialKeyword, thisIsInitial) { //Only call this function once the card has been created
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: addNewIdentity', initialCardKey, initialKeyword);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: addNewIdentity', initialCardKey, initialKeyword);
             return $q(function(resolve, reject) {
                 var newIdentity = service.firebaseIdentities.push();
                 var identityKey = newIdentity.key();
@@ -710,7 +710,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 });
                 if (thisIsInitial) {
                     service.firebaseMain.child("settings").update({initialIdentity: identityKey}, function() {
-                        console.log(identityKey);
+                        //console.log(identityKey);
                     });
                 }
                 
@@ -722,7 +722,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         appendKeyword: function(keyword, identityKey) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: appendKeyword', keyword, identityKey);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: appendKeyword', keyword, identityKey);
             var newKeywordData = {
                 keyword: keyword,
                 identityRef: identityKey
@@ -738,11 +738,11 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         addNewKeyword: function(newkeyword, showToast) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: addNewKeyword', newkeyword, showToast);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: addNewKeyword', newkeyword, showToast);
             return $q(function(resolve, reject) {
                 service.firebaseKeywords.orderByChild("keyword").equalTo(newkeyword.keyword).once('value', function(snapshot) {
                     if (snapshot.val() !== null) {
-                        console.log('keyword with same string already exists');
+                        //console.log('keyword with same string already exists');
                         reject();
                     }
                     else {
@@ -765,7 +765,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         updateCard: function(key, card) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateCard', key, card);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateCard', key, card);
             
             var cardData = card.data;
             cardData = service.structureAllText(cardData);
@@ -779,7 +779,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             service.appendKeyword(card.data.title, card.data.identity);
             // }
 
-            console.log('about to update:', card);
+            //console.log('about to update:', card);
             service.firebaseCards.child(key).update(card.data, function(error) {
                 service.algoliaUpdate(key, card); // This needs to use callbacks etc
                 service.reImportCard(key); // Is this necessary?
@@ -792,7 +792,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         deleteCard: function(key, card) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: deleteCard', key, card);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: deleteCard', key, card);
             var title = card.data.title ? card.data.title : null;
             var identityKey = card.data.identity;
 
@@ -809,7 +809,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         deleteIdentity: function(identityKey, title) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: deleteIdentity', identityKey, title);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: deleteIdentity', identityKey, title);
             //What happens to any of the identity's remaining cards?
 
             service.firebaseIdentities.child(identityKey).remove(function() {
@@ -821,7 +821,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         deleteKeyword: function(key, identityKey, keywordText) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: deleteKeyword', key, identityKey);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: deleteKeyword', key, identityKey);
             var identityKeyPos = service.identityKeyPos(identityKey);
             var identity = service.identities[identityKeyPos];
             var identityKeywords = identity ? identity.keywords : null;
@@ -837,7 +837,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         getIdentityKeywords: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getIdentityKeywords', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getIdentityKeywords', key);
             return $q(function(resolve, reject) {
                 var identityKeywords = [];
                 service.firebaseKeywords.orderByChild("identityRef").equalTo(key).on("child_added", function(snapshot) {
@@ -848,35 +848,35 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     identityKeywords.push(keyword);
                 });
                 $q.all(identityKeywords).then(function() {
-                    console.log('identityKeywords', identityKeywords);
+                    //console.log('identityKeywords', identityKeywords);
                     resolve(identityKeywords);
                 });
             });
         },
 
         getCardFromIdentity: function(identity) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getCardFromIdentity', identity);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getCardFromIdentity', identity);
             var cardKey = identity.data.cards[0].key; //Currently just selects the first card in the identity's 'cards' array
             return cardKey;
         },
 
         getCardAuthorDetails: function(card) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getCardAuthorDetails', card);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getCardAuthorDetails', card);
             var authorId = card.data.authorId;
-            console.log(authorId);
-            console.log(service.userKeyPos(authorId));
+            //console.log(authorId);
+            //console.log(service.userKeyPos(authorId));
             var author = service.users[service.userKeyPos(authorId)]; // This assumes user has already been imported - should we use getAuthor instead?
             return author;
         },
 
         getAuthorProfile: function(key) { // This assumes identity has already been imported - need to make sure this happens first
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getAuthorProfile', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getAuthorProfile', key);
 
             key ? service.getIdentity(key) : null;
 
             var identityPos = key ? service.identityKeyPos(key) : null;
             var identity = identityPos != -1 ? service.identities[identityPos] : null;
-            console.log('identity', identity);
+            //console.log('identity', identity);
 
             if (identity) {
                 identity.data ? service.getCard(service.getCardFromIdentity(identity)) : null;
@@ -884,13 +884,13 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
 
             var cardPos = identity ? service.cardKeyPos(service.getCardFromIdentity(identity)) : null;
             var card = cardPos != -1 ? service.cards[cardPos] : null;
-            console.log('card', card);
+            //console.log('card', card);
             var authorProfile = card ? {
                 title: card.data.title,
                 subtitle: card.data.subtitle,
                 image: card.data.image
             } : {};
-            console.log('authorProfile', authorProfile);
+            //console.log('authorProfile', authorProfile);
             return authorProfile;
 
 
@@ -912,12 +912,12 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         getQuoteAuthorOptions: function() {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getQuoteAuthorOptions');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getQuoteAuthorOptions');
             return service.cards;
         },
 
         getLinksfromText: function(structure) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getLinksfromText', structure);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: getLinksfromText', structure);
             var textLinks = [];
             for (var i = 0; i < structure.length; i++) {
                 if (structure[i].type == 'link' & textLinks.indexOf(structure[i].ref) == -1) {
@@ -928,8 +928,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         moveCardToFront: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: moveCardToFront', key);
-            console.log('moving');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: moveCardToFront', key);
+            //console.log('moving');
             for (var i = 0; i < service.cards.length; i++) {
                 if (service.cards[i].objectID == key) {
                     service.cards[i].showing = true;
@@ -942,25 +942,25 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         openFromCardKey: function(cardKey, edit) { //For now just selects identity from card and then acts as normal (so will select the most popular card from that identity)
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: openFromCardKey', cardKey, edit);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: openFromCardKey', cardKey, edit);
             service.getCard(cardKey, true).then(function(card) {
-                console.log(card);
+                //console.log(card);
                 service.open(card.data.identity, edit);
             });
         },
 
         open: function(identityKey, edit) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: open', identityKey, edit);
-            console.log('layer1');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: open', identityKey, edit);
+            //console.log('layer1');
             service.getIdentity(identityKey).then(function(identity) {
-                console.log('layer2');
+                //console.log('layer2');
                 var cardKey = service.getCardFromIdentity(identity);
                 service.getCard(cardKey, true).then(function(card) {
-                    console.log('layer3');
+                    //console.log('layer3');
                     service.moveCardToFront(card.objectID);
-                    console.log('edit:', edit);
-                    console.log('card.editing:', card.editing);
-                    console.log('logic:', edit && !card.editing);
+                    //console.log('edit:', edit);
+                    //console.log('card.editing:', card.editing);
+                    //console.log('logic:', edit && !card.editing);
                     edit && !card.editing ? service.toggleEditCard(cardKey) : null;
                     
                     
@@ -986,19 +986,19 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         close: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: close', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: close', key);
             var pos = service.cardKeyPos(key);
-            console.log(pos);
+            //console.log(pos);
             if (pos != undefined) {
                 service.cards[pos].showing = false;
                 service.cards[pos].atFront = false;
             }
-            console.log('service.cards[pos]', service.cards[pos]);
+            //console.log('service.cards[pos]', service.cards[pos]);
         },
 
         toggleEditMode: function() {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: toggleEditMode');
-            console.log('toggling edit mode 2');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: toggleEditMode');
+            //console.log('toggling edit mode 2');
             service.editMode = !service.editMode;
             // if (editMode) {
             //     $scope.showSimpleToast("Edit mode is on");
@@ -1009,17 +1009,17 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         toggleEditCard: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: toggleEditCard', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: toggleEditCard', key);
             var pos = service.cardKeyPos(key);
             service.cards[pos].editing = !service.cards[pos].editing;
         },
 
         populateFromWikipedia: function(key, cardData) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: populateFromWikipedia', key, cardData);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: populateFromWikipedia', key, cardData);
             var title = cardData.title;
             $http.jsonp('https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&lllimit=500&titles=' + title + '&callback=JSON_CALLBACK&formatversion=2'). /* global $http */
             success(function(data) {
-                console.log('success1', data);
+                //console.log('success1', data);
                 cardData.bio !== undefined ? cardData.bio = {} : null;
                 if (data.query.pages[0].extract.length > 5) {
                     cardData.sources = cardData.sources ? cardData.sources : [];
@@ -1032,28 +1032,28 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     }) : null; //Currently only works if bio works (not necessarily if image does)
                     cardData.bio.value = service.nSentencesMChars(service.htmlToPlaintext(data.query.pages[0].extract), 2, 450);
                 }
-                console.log('cardData', cardData);
+                //console.log('cardData', cardData);
                 $http.jsonp('https://en.wikipedia.org/w/api.php?&format=json&&callback=JSON_CALLBACK&formatversion=2&action=query&titles=' + title + '&prop=pageimages&format=json&pithumbsize=200').
                 success(function(data) {
-                    console.log('success2', data);
+                    //console.log('success2', data);
                     if (cardData.image === undefined) {
                         cardData.image = {};
                     }
                     cardData.image.value = data.query.pages[0].thumbnail.source;
-                    console.log('cardData', cardData);
+                    //console.log('cardData', cardData);
                     service.cards[service.cardKeyPos(key)].data = cardData; //Pretty sure this won't work now we're inside a service!
                 });
             });
         },
 
         htmlToPlaintext: function(text) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: htmlToPlaintext', text);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: htmlToPlaintext', text);
             var text1 = String(text).replace(/<[^>]+>.<[^>]+>|\s\s+/gm, ' ').replace(/<[^>]+>|\;|\(.*\) |\(.*\)/gm, '').replace(/<[^>]+>.<[^>]+>|\s\s+/gm, ' ').replace('( ', '(');
             return text1.replace('&crarr;', ' ');
         },
 
         nSentencesMChars: function(text, n, m) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: nSentencesMChars', text, n, m);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: nSentencesMChars', text, n, m);
             var maxChars = text.substring(0, m);
             var split = maxChars.split(". ");
             var shorterSplit;
@@ -1069,11 +1069,11 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         structureAllText: function(cardData) {
           if (cardData.textStructures) {
                 for (i=0; i < cardData.textStructures.length; i++) {
-                    console.log(cardData.textStructures[i]);
-                    console.log(cardData[cardData.textStructures[i]]);
+                    //console.log(cardData.textStructures[i]);
+                    //console.log(cardData[cardData.textStructures[i]]);
                     if (cardData[cardData.textStructures[i]][0]) { //This handles lists but not yet 2-dimensional arrays (e.g. for tables)
                         for (j=0; j < cardData[cardData.textStructures[i]].length; j++) {
-                            console.log(cardData[cardData.textStructures[i]][j]);
+                            //console.log(cardData[cardData.textStructures[i]][j]);
                             cardData[cardData.textStructures[i]][j].structure = [];
                             cardData[cardData.textStructures[i]][j].structure = service.structureText(-1, cardData[cardData.textStructures[i]][j].value, service.orderedKeywords);
                         }
@@ -1091,7 +1091,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         structureText: function(identityKey, text, keywords) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: structureText', identityKey, text, keywords);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: structureText', identityKey, text, keywords);
             var structuredText = [{
                 text: text,
                 type: 'span'
@@ -1132,14 +1132,14 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         deleteIdentityKeywords: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: deleteIdentityKeywords', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: deleteIdentityKeywords', key);
             service.firebaseKeywords.orderByChild("identityRef").equalTo(key).on("child_added", function(snapshot) {
                 service.deleteKeyword(snapshot.key(), key, snapshot.val().keyword);
             });
         },
 
         reorderKeywords: function() { //Should render this unecessary by using Firebase's ordered lists with keywordLength as the ordering key
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: reorderKeywords');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: reorderKeywords');
             return $q(function(resolve, reject) {
                 service.orderedKeywords = [];
                 service.firebaseKeywords.orderByChild("keywordLength").on("child_added", function(snapshot) {
@@ -1153,7 +1153,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
 
         updateBiosFromKeyword: function(keywordText) {
             //This should update all types of structured text, not just bios
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateBiosFromKeyword', keywordText);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateBiosFromKeyword', keywordText);
             //Should this use Algolia to search through bios?
             //Slightly updated now we have localCards, but still not quite right
             service.reorderKeywords().then(function() {
@@ -1172,14 +1172,14 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         updateAllText: function() {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateAllText');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateAllText');
             //Copied and adjusted from updateBiosFromKeyword()
             //Should this use Algolia to search through bios?
             //Slightly updated now we have localCards, but still not quite right
             service.reorderKeywords().then(function() {
                 service.firebaseCards.on('child_added', function(snapshot) { //Should this be once() not on() to stop it continuing to do it?
                     var key = snapshot.key();
-                    console.log(snapshot.val());
+                    //console.log(snapshot.val());
                     var bio = snapshot.val().bio.value;
                     var cardData = service.structureAllText(snapshot.val());
                     service.firebaseCards.child(key).set(cardData);
@@ -1194,7 +1194,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         /* THe following updateAll... functions haven't been properly cleaned up as a lot of it is (hopefully) temporary anyway */
 
         updateAllIdentities: function() {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateAllIdentities');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateAllIdentities');
             var tempIdentityListOfCardKeys = [];
             service.firebaseIdentities.on('child_added', function(snapshot) { //Should this be once() not on() to stop it continuing to do it?
                 var identityKey = snapshot.key();
@@ -1211,13 +1211,13 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                         // $scope.firebaseIdentities.child(snapshot.key()).remove();
                     }
                     if (!cardSnapshot.val().title) {
-                        console.log('need to remove this identity: ', snapshot.val());
+                        //console.log('need to remove this identity: ', snapshot.val());
                         // service.deleteIdentity(snapshot.key(), snapshot.val());
-                        console.log('need to remove this card: ', cardSnapshot.val());
+                        //console.log('need to remove this card: ', cardSnapshot.val());
                         // service.deleteCard(cardSnapshot.key(), cardSnapshot.val());
 
                         service.firebaseKeywords.orderByChild("identityRef").equalTo(snapshot.key()).on("child_added", function(keywordSnapshot) {
-                            console.log('need to remove this keyword: ', keywordSnapshot.val());
+                            //console.log('need to remove this keyword: ', keywordSnapshot.val());
                             // $scope.firebaseIdentities.child(keywordSnapshot.key()).remove();
                         });
                     }
@@ -1229,13 +1229,13 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         updateAllCards: function() {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateAllCards');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateAllCards');
             service.reorderKeywords(); //Need a callback here to finish this before proceeding
 
             service.firebaseCards.on('child_added', function(snapshot) { //Should this be once() not on() to stop it continuing to do it?
                 var key = snapshot.key();
                 // if (!snapshot.val().title) {
-                //     console.log('need to remove this card2: ', snapshot.val());
+                //     //console.log('need to remove this card2: ', snapshot.val());
                 //     service.deleteCard(snapshot.key(), {
                 //         data: snapshot.val()
                 //     });
@@ -1298,18 +1298,18 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         updateAllKeywords: function() {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateAllKeywords');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateAllKeywords');
             service.firebaseKeywords.on('child_added', function(snapshot) {
                 var tempKeywordLength = snapshot.val().keywordLength;
-                // console.log('tempKeywordLength', tempKeywordLength);
+                // //console.log('tempKeywordLength', tempKeywordLength);
                 snapshot.ref().setPriority(tempKeywordLength);
-                // console.log(snapshot.val().identityRef);
+                // //console.log(snapshot.val().identityRef);
                 service.firebaseIdentities.child(snapshot.val().identityRef).once('value', function(identitySnapshot) {
-                    // console.log(snapshot.val().identityRef);
-                    // console.log(identitySnapshot.val());
+                    // //console.log(snapshot.val().identityRef);
+                    // //console.log(identitySnapshot.val());
                 }, function(error) {
                     service.firebaseKeywords.child(snapshot.key()).remove(function() { //Don't yet know whether this actually works!
-                        // console.log("Keyword " + snapshot.val().keyword + " removed.");
+                        // //console.log("Keyword " + snapshot.val().keyword + " removed.");
                     });
                 });
             });
@@ -1326,7 +1326,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         updateEverything: function() {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateEverything');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: updateEverything');
             //All of this needs callbacks
             service.updateAllKeywords();
             service.updateAllCards();
@@ -1338,7 +1338,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         toggleLogin: function() {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: toggleLogin');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: toggleLogin');
             if (service.loggedIn) {
                 service.firebaseRef.unAuth(); //Doesn't currently work for some reason
             }
@@ -1348,24 +1348,24 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         logMeIn: function(loginProvider) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: logMeIn', loginProvider);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: logMeIn', loginProvider);
             var deferred = $q.defer();
             switch (loginProvider) {
                 case 'twitter':
                     {
                         service.firebaseRef.authWithOAuthPopup("twitter", function(error, authData) {
                             if (error) {
-                                console.log('twitter error');
+                                //console.log('twitter error');
                                 deferred.reject();
                             }
                             else {
-                                console.log('twitter success!');
+                                //console.log('twitter success!');
                                 service.loggedIn = true;
                                 service.loginData = authData;
                                 $rootScope.$apply();
                                 // service.showSimpleToast("Hello " + authData.twitter.displayName + "! You're now logged in.");
 
-                                console.log(authData);
+                                //console.log(authData);
                     
                                 service.firebaseUsers.child(authData.uid).update({
                                     uid: authData.uid,
@@ -1376,7 +1376,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                                     url: "http://twitter.com/" + authData.twitter.username
                                 }, function(error) {
                                     if(error) {
-                                        console.log('error updating user info');
+                                        //console.log('error updating user info');
                                         deferred.reject();
                                     } else {
                                         service.importUser(authData.uid)
@@ -1393,7 +1393,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         allowingEditMode: function() {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: allowingEditMode');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: allowingEditMode');
             if (service.loggedIn | service.godMode) {
                 return true;
             }
@@ -1403,7 +1403,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         cardBelongsToUser: function(card) {
-            // console.log((Date.now() - currentTimestamp),currentTimestamp = Date.now(), 'function: cardBelongsToUser', card);
+            // //console.log((Date.now() - currentTimestamp),currentTimestamp = Date.now(), 'function: cardBelongsToUser', card);
             if ( service.loggedIn && (card.data.authorId == service.loginData.uid) | service.godMode) {
                 return true;
             }
@@ -1413,7 +1413,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         cardCanBeClaimed: function(card) {
-            // console.log((Date.now() - currentTimestamp),currentTimestamp = Date.now(), 'function: cardCanBeClaimed', card);
+            // //console.log((Date.now() - currentTimestamp),currentTimestamp = Date.now(), 'function: cardCanBeClaimed', card);
             if (service.loggedIn & card.data.authorId == undefined & !service.godMode) {
                 return true;
             }
@@ -1423,7 +1423,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         claimCard: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: claimCard', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: claimCard', key);
             if (service.loggedIn) {
                 service.firebaseCards.child(key).update({
                     authorId: service.loginData.uid
@@ -1432,14 +1432,14 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                         
                         // $rootScope.$apply();
                     });
-                    console.log('Error claiming card - trying a reImport.')
+                    //console.log('Error claiming card - trying a reImport.')
                 });
             }
         },
 
         algoliaAdd: function(card, key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: algoliaAdd', card, key);
-            console.log(card);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: algoliaAdd', card, key);
+            //console.log(card);
             var myObjectID = key;
             // service.algoliaIndex.addObject(card.data, myObjectID, function(err, content) {
 
@@ -1448,7 +1448,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         algoliaUpdate: function(key, card) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: algoliaUpdate', key, card);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: algoliaUpdate', key, card);
 
 
             card.data.objectID = key;
@@ -1460,7 +1460,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         },
 
         algoliaDelete: function(key) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: algoliaDelete', key);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: algoliaDelete', key);
             // service.algoliaIndex.deleteObject(key, function(error) {
             //     if (!error) {
 
@@ -1473,7 +1473,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
 
 
         reImportToAlgolia: function() { //Use this VERY RARELY!!!!!
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: reImportToAlgolia');
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: reImportToAlgolia');
             // Get all data from Firebase
             service.firebaseCards.on('value', reindexIndex);
 
@@ -1531,7 +1531,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                         resolve(receivedData);
                     },
                     error: function() {
-                        console.log('Error talking to server', url, type, data);
+                        //console.log('Error talking to server', url, type, data);
                         reject();
                     }
                 });
@@ -1545,7 +1545,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 };
                 service.talkToServer('/connection', 'POST', connectionData)
                 .then(function(receivedData) {
-                    console.log(receivedData);
+                    //console.log(receivedData);
                     resolve(receivedData.fbInstance);
                 });
             });
@@ -1560,7 +1560,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 };
                 service.talkToServer('/connection', 'POST', connectionData)
                 .then(function(receivedData) {
-                    console.log(receivedData);
+                    //console.log(receivedData);
                     service.algoliaSearchAPIKey = receivedData.algoliaSearchAPIKey;
                     resolve(receivedData.algoliaIndex);
                 });
@@ -1573,7 +1573,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
         //NEW (using backend) data maniuplation
         
         NEW_addNewCard: function(cardData, format, open, autoPopulate, edit) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: addNewCard', cardData, open, autoPopulate, edit);
+            //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: addNewCard', cardData, open, autoPopulate, edit);
             
             cardData.authorId = service.loginData.uid || null;
             
@@ -1585,7 +1585,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             
             service.serverChangeRecord(cardData, 'card', 'create', {})
             .then(function(receivedData) {
-                console.log(receivedData);
+                //console.log(receivedData);
                 // Temporarily disabled followUps while testing
                 // open ? openFromCardKey(receivedData.cardData.objectID, edit) : null ;
             });
@@ -1601,7 +1601,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 };
                 service.talkToServer('/change-record', 'POST', transferData)
                 .then(function(receivedData) {
-                    console.log('receivedData', receivedData);
+                    //console.log('receivedData', receivedData);
                     resolve(receivedData);
                 });
             });
@@ -1741,11 +1741,11 @@ app.directive('ngCard', ['Cards', function(Cards) {
                 return Cards.claimCard(key);
             };
             scope.toggleEdit = function(key) {
-                console.log('toggling: ', key);
+                //console.log('toggling: ', key);
                 return Cards.toggleEditCard(key);
             };
             scope.close = function(key) {
-                console.log('closing', key);
+                //console.log('closing', key);
                 return Cards.close(key);
             };
             scope.update = function(key, card) {
@@ -1791,25 +1791,25 @@ app.directive('ngCardFormat', ["$compile", '$http', '$templateCache', '$parse', 
             // scope.data = attrs.data;
 
             scope.$watch(scope.format, function(value) {
-                console.log('attrs:', attrs);
-                console.log('scope:', scope);
-                console.log('watched:', value);
+                //console.log('attrs:', attrs);
+                //console.log('scope:', scope);
+                //console.log('watched:', value);
                 if (value) {
                     value = 'html/cards/' + value + '.html';
-                    console.log('template');
+                    //console.log('template');
                     loadTemplate(value);
                 }
             });
 
             function loadTemplate(format) {
-                console.log('format:', format);
+                //console.log('format:', format);
                 $http.get(format, {
                         cache: $templateCache
                     })
                     .success(function(templateContent) {
-                        console.log('templateContent:', templateContent);
+                        //console.log('templateContent:', templateContent);
                         element.replaceWith($compile(templateContent)(scope));
-                        console.log('replaced');
+                        //console.log('replaced');
                     });
             }
         }
@@ -1846,7 +1846,7 @@ app.directive('ngSearch', ['Cards', function(Cards) {
                 }
             };
             scope.clickAction = function(key, cardData) {
-                console.log(key, cardData);
+                //console.log(key, cardData);
                 scope.query = '';
                 scope.hits = [];
                 switch (scope.action) {
