@@ -81,7 +81,7 @@
         <!--<i class="material-icons action-icon refresh-all" ng-show="getEditMode()" ng-click="updateEverything()">autorenew</i>-->
         <!--<i class="material-icons action-icon new-card" ng-show="getEditMode()" ng-click="addNewCard({}, true, true, false, true)">queue</i>-->
         <div class="btn-group new-card">
-            <i class="fa fa-plus icon-tooltip action-icon new-card" ng-show="loggedIn()" data-toggle="dropdown" data-placement="left" title="Create new card"></i>
+            <i class="fa fa-plus icon-tooltip action-icon new-card" ng-show="allowCreate()" data-toggle="dropdown" data-placement="left" title="Create new card"></i>
             <ul class="dropdown-menu">
                 <li class="dropdown-header">Select a card type:</li>
                 <li role="separator" class="divider"></li>

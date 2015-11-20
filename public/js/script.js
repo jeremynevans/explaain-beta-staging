@@ -661,18 +661,22 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
 
         appendKeyword: function(keyword, identityKey) {
             console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: appendKeyword', keyword, identityKey);
-            var newKeywordData = {
+            var deferred = $q.defer();
+            var keywordData = {
                 keyword: keyword,
                 identityRef: identityKey
             };
-            service.addNewKeyword(newKeywordData, true).then(function(newKeywordDataTemp, key) {
+            service.addNewKeyword(keywordData, true)
+            .then(function(newKeywordData, key) {
+                newKeywordData.objectID = key;
                 var newKeyword = {
-                    data: newKeywordDataTemp,
-                    objectID: key
+                    data: newKeywordData,
+                    objectID: key // Ideally this shouldn't be needed
                 };
-                // service.identities[service.identityKeyPos(identityKey)].keywords.push(newKeyword); //Not sure why this isn't needed
+                service.getIdentity(identityKey); // Makes sure identity updates to include new keyword
+                deferred.resolve(newKeyword);
             });
-            return newKeywordData;
+            return deferred.promise;
         },
         
         testForRepeat: function(fbRef, myChild, myEqualTo) {
@@ -713,49 +717,32 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             });
             return deferred.promised;
         },
-
-        deleteCard: function(key, card) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: deleteCard', key, card);
-            var title = card.data.title ? card.data.title : null;
-            var identityKey = card.data.identity;
-
-            service.firebaseCards.child(key).remove(function() {
-                service.cards.splice(service.cardKeyPos(key), 1);
-                service.deleteIdentity(identityKey, title); //Needs to only be if the identity has no more cards left
-                service.algoliaDelete(key); // This needs to use callbacks etc
-
-                $rootScope.$apply(); //Looks like this might be needed in other places too - maybe an Angula $watch function on service.cards?
-
-                //The following should really only happen after various callbacks
-                // $scope.showSimpleToast("Success! You've deleted the card " + title);
+        
+        deleteCard: function(cardKey, card) {
+            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: deleteCard', cardKey, card);
+            var identityKey = card.data.identity || null;
+            service.changeRecord(card.data, 'card', 'delete', {})
+            .then(function() {
+                service.cards.splice(service.cardKeyPos(cardKey), 1);
+                service.deleteIdentity(identityKey); //Needs to only be if the identity has no more cards left
             });
         },
-
-        deleteIdentity: function(identityKey, title) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: deleteIdentity', identityKey, title);
-            //What happens to any of the identity's remaining cards?
-
-            service.firebaseIdentities.child(identityKey).remove(function() {
+        
+        deleteIdentity: function(identityKey) {
+            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: deleteIdentity', identityKey);
+            service.changeRecord({objectID: identityKey}, 'identity', 'delete', {})
+            .then(function() {
                 service.identities.splice(service.identityKeyPos(identityKey), 1);
-                // $scope.algoliaDelete(key); //Need to add Identities to Algolia and work out what we can do with them
                 service.deleteIdentityKeywords(identityKey);
-                // service.showSimpleToast("Success! You've deleted the identity " + title);
             });
         },
-
-        deleteKeyword: function(key, identityKey, keywordText) {
-            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: deleteKeyword', key, identityKey);
-            var identityKeyPos = service.identityKeyPos(identityKey);
-            var identity = service.identities[identityKeyPos];
-            var identityKeywords = identity ? identity.keywords : null;
-            service.firebaseKeywords.child(key).remove(function() {
-                identityKeywords ? service.identities[identityKeyPos].keywords = $.grep(identityKeywords, function(e) {
-                    return e.objectID != key;
-                }) : null;
-                service.reorderKeywords().then(function() {
-                    service.updateBiosFromKeyword(keywordText);
-                    // $rootScope.$apply();
-                });
+        
+        deleteKeyword: function(keywordKey, identityKey, keywordText) {
+            console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: deleteKeyword', keywordKey, identityKey, keywordText);
+            service.changeRecord({objectID: keywordKey}, 'keyword', 'delete', {})
+            .then(function() {
+                service.getIdentity(identityKey);
+                service.updateBiosFromKeyword(keywordText);
             });
         },
 
@@ -1138,7 +1125,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     }
                     if (!cardSnapshot.val().title) {
                         console.log('need to remove this identity: ', snapshot.val());
-                        // service.deleteIdentity(snapshot.key(), snapshot.val());
+                        // service.deleteIdentity(snapshot.key());
                         console.log('need to remove this card: ', cardSnapshot.val());
                         // service.deleteCard(cardSnapshot.key(), cardSnapshot.val());
 
@@ -1545,7 +1532,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     service.getCorrectFirebaseSet(recordType).child(data.objectID).update(data, onFirebaseChange);
                     break;
                 case 'delete':
-                    service.getCorrectFirebaseSet(recordType).child(data.objectID).remove(data, onFirebaseChange);
+                    service.getCorrectFirebaseSet(recordType).child(data.objectID).remove(onFirebaseChange);
                     break;
             }
             function onFirebaseChange(error) {
@@ -1772,6 +1759,9 @@ app.directive('ngUserInterface', ['Cards', function(Cards) {
     
             scope.usingTeams = function() {
                 return Cards.usingTeams;
+            };
+            scope.allowCreate = function() {
+                return Cards.loggedIn || Cards.godMode;
             };
             scope.loggedIn = function() {
                 return Cards.loggedIn;
