@@ -1186,13 +1186,13 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                     for (var k = 0; k < structuredText.length;) {
                         if (structuredText[k].type != 'link') {
                             var text = structuredText[k].text;
-                            var /*LOG*/ //console.log = text.split(keywords[j].keyword);
-                            if (/*LOG*/ //console.log.length > 0) {
+                            var splitSection = text.split(keywords[j].keyword);
+                            if (splitSection.length > 0) {
                                 var insert = [];
-                                for (var m = 0; m < /*LOG*/ //console.log.length; m++) {
+                                for (var m = 0; m < splitSection.length; m++) {
                                     insert[2 * m] = {
                                         type: 'span',
-                                        text: /*LOG*/ //console.log[m]
+                                        text: splitSection[m]
                                     };
                                     insert[2 * m + 1] = {
                                         type: 'link',
@@ -2189,7 +2189,7 @@ app.directive('ngQuoteAuthor', ['Cards', function(Cards) {
                 return Cards.open(key, edit);
             };
             scope.getAuthor = function(key) {
-                return Cards.getAuthorProfile(key);
+                // return Cards.getAuthorProfile(key);
             };
             scope.getQuoteAuthorOptions = function() {
                 return Cards.getQuoteAuthorOptions();
