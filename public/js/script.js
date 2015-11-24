@@ -1630,7 +1630,6 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 // actionFollowUp(data, recordType, settings.followUp.action);
                 // dataFollowUp(data, recordType, settings.followUp.data);
                 service.changeAlgolia(data, recordType, changeType);
-                console.log('resolving changeRecord', data);
                 deferred.resolve(data);
                 });
             return deferred.promise;
@@ -1669,7 +1668,6 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 if(error) {
                     deferred.reject();
                 } else {
-                    console.log('resolving changeFirebaseRecord');
                     deferred.resolve(data);
                 }
             }
@@ -2024,9 +2022,7 @@ app.directive('ngCardFormat', ["$compile", '$http', '$templateCache', '$parse', 
                         cache: $templateCache
                     })
                     .success(function(templateContent) {
-                        console.log('templateContent:', templateContent);
                         element.replaceWith($compile(templateContent)(scope));
-                        console.log('replaced');
                     });
             }
         }
