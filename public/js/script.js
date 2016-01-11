@@ -113,7 +113,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 'profile',
                 'list',
                 'quote',
-                'embed'
+                'embed',
+                'image'
             ]
         },
 
@@ -1141,7 +1142,7 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                         }
                     }
                 }
-            } else { // Eventually this won't be needed
+            } else if (cardData.bio) { // Eventually this won't be needed
                 cardData.bio.structure = [];
                 cardData.bio.structure = service.structureText(-1, cardData.bio.value, service.orderedKeywords);
             }
@@ -1773,6 +1774,12 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                         ['textStructures', []]
                     ]);
                     break;
+                case 'image':
+                    data = service.setDefaults(data, [
+                        ['image', {value: '', structure: []}],
+                        ['textStructures', []]
+                    ]);
+                    break;
             }
             return data;
         },
@@ -1825,6 +1832,9 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 cardData.intro = {value: ''};
                 cardData.list = [{value: ''}];
                 cardData.outro = {value: ''};
+            }
+            if (format=="image") { //Need to do all this properly
+                cardData.imageMain = {value: ''};
             }
             
             service.serverChangeRecord(cardData, 'card', 'create', {})
