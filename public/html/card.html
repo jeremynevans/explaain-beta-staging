@@ -56,7 +56,7 @@
                         </span>
                     </div>
                 </form>
-                <button ng-repeat="keyword in getCardIdentity(card).keywords" class="btn btn-primary keyword" type="button">
+                <button ng-repeat="keyword in getCardIdentity(card).data.keywords" class="btn btn-primary keyword" type="button">
                     {{keyword.data.keyword}} <span class="badge" ng-click="deleteKeyword(keyword.objectID, card.data.identity, keyword.keyword)"><i class="fa fa-times"></i></span>
                 </button>
                 <!--<span ng-repeat="keyword in getCardIdentity(card).keywords" class="label label-default" style="margin-right: 10px">{{keyword.data.keyword}}</span>-->
