@@ -2347,7 +2347,8 @@ app.directive('ngManual', function() {
         templateUrl: 'html/components/manual.html',
         scope: {
             editing: '=',
-            html: '='
+            content: '=',
+            label: '@'
         }
     }
 });

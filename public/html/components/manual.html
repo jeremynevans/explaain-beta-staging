@@ -1,7 +1,8 @@
-<div class="text structured-text" ng-hide="editing">
-    {{ html }}
-</div>
+<div class="text structured-text" contenteditable="false" ng-model="content" ng-hide="editing" ng-init="content=label"></div>
+<div class="text structured-text" contenteditable="true" ng-model="content" ng-show="editing" ng-init="content=label"></div>
 
-<div class="form-group" ng-show="editing">
-    <input type="text" class="form-control" ng-model="text" placeholder="{{label}}">
-</div>
+
+
+<!--<div class="form-group" ng-show="editing">-->
+<!--    <input type="text" class="form-control" ng-model="text" placeholder="{{label}}">-->
+<!--</div>-->
