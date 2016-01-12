@@ -287,6 +287,8 @@ li.card {
 
 .card .header-image .image {
     border-radius: 50%;
+    width: 80px;
+    height: 80px;
 }
 
 .card .header-image,
@@ -294,11 +296,6 @@ li.card {
     display: inline-block;
     vertical-align: middle;
     /*margin-bottom: 10px;*/
-}
-
-.card .header-image {
-    width: 80px;
-    height: 80px;
 }
 
 .card .header-text {
