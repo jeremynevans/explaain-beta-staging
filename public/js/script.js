@@ -21,7 +21,7 @@ var cardToOpen = ''; //This is not a good way of doing it
 var myScope;
 var mainScope;
 
-var app = angular.module('app', ['firebase', 'ngMaterial', 'algoliasearch', 'ngRoute', 'ngSanitize', 'ngResource', 'monospaced.elastic']); /* global angular */
+var app = angular.module('app', ['firebase', 'ngMaterial', 'algoliasearch', 'ngRoute', 'ngSanitize', 'ngResource', 'monospaced.elastic', 'contenteditable']); /* global angular */
 
 app.controller('MainCtrl', ['$scope', '$timeout', '$http', '$mdToast', '$mdSidenav', 'algolia', '$q', 'Cards', 'Post', function($scope, $timeout, $http, $mdToast, $mdSidenav, algolia, $q, Cards, Post) {
 
@@ -1760,6 +1760,12 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                         ['textStructures', ['bio']]
                     ]);
                     break;
+                case 'manual':
+                    data = service.setDefaults(data, [
+                        ['description', {value: '', structure: []}],
+                        ['textStructures', []]
+                    ]);
+                    break;
                 case 'list':
                     data = service.setDefaults(data, [
                         [ 'intro', {value: ''} ],
@@ -2330,6 +2336,18 @@ app.directive('ngEmbed', function() {
         scope: {
             editing: '=',
             embed: '='
+        }
+    }
+});
+
+app.directive('ngManual', function() {
+    return {
+        restrict: 'E',
+        require: 'MainCtrl',
+        templateUrl: 'html/components/manual.html',
+        scope: {
+            editing: '=',
+            html: '='
         }
     }
 });

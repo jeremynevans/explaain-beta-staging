@@ -281,12 +281,13 @@ li.card {
 
 .card .image {
     object-fit: cover;
-    width: 100%;
-    height: 100%;
+    max-width: 100%;
 }
 
 .card .header-image .image {
     border-radius: 50%;
+    width: 80px;
+    height: 80px;
 }
 
 .card .header-image,
@@ -294,11 +295,6 @@ li.card {
     display: inline-block;
     vertical-align: middle;
     /*margin-bottom: 10px;*/
-}
-
-.card .header-image {
-    width: 80px;
-    height: 80px;
 }
 
 .card .header-text {
@@ -323,6 +319,7 @@ li.card {
 
 .image-main .image-container {
     margin: 20px 0 10px 0;
+    text-align: center;
 }
 
 .card .bio,
