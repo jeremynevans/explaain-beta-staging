@@ -63,11 +63,10 @@ md-toast.md-top {
 html,
 body {
     min-height: 100%;
-    /*background: #eee;*/
+    background: #DFDDDE;
     font-family: 'Lato', sans-serif;
     line-height: 1.5em;
     font-size: 16px;
-    background: url(https://www.evernote.com/redesign/global/img/page-bg-tile.jpg) center;
     -webkit-background-size: 50px 50px;
     -moz-background-size: 50px 50px;
     -o-background-size: 50px 50px;
