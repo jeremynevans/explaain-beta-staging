@@ -1073,6 +1073,61 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             var pos = service.recordKeyPos('card', key);
             service.cards[pos].editing = !service.cards[pos].editing;
         },
+        
+        insertLinkAroundSelection: function() {
+            console.log(document.activeElement.innerHTML);
+            console.log(document.activeElement);
+            var myElement = document.activeElement;
+            var link = prompt('Enter your URL');
+            if (link) {
+                var originalSelection = service.getSelectionHtml();
+                var newSelection = '<a href="' + link + '">' + originalSelection + '</a>';
+                console.log(newSelection);
+                service.replaceSelectionWithHtml(newSelection);
+                var newContent = document.activeElement.innerHTML;
+                console.log(newContent);
+                return newContent;
+            }
+        },
+        
+        getSelectionHtml: function() {
+            var html = "";
+            if (typeof window.getSelection != "undefined") {
+                var sel = window.getSelection();
+                if (sel.rangeCount) {
+                    var container = document.createElement("div");
+                    for (var i = 0, len = sel.rangeCount; i < len; ++i) {
+                        container.appendChild(sel.getRangeAt(i).cloneContents());
+                    }
+                    html = container.innerHTML;
+                }
+            } else if (typeof document.selection != "undefined") {
+                if (document.selection.type == "Text") {
+                    html = document.selection.createRange().htmlText;
+                }
+            }
+            return html;
+        },
+        
+        //From SO 6251937 (2nd answer), using SO 22935320
+        replaceSelectionWithHtml: function(html) {
+            var range, html, sel;
+            sel = window.getSelection && window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                range = sel.getRangeAt(0);
+                range.deleteContents();
+                var div = document.createElement("div");
+                div.innerHTML = html;
+                var frag = document.createDocumentFragment(), child;
+                while ( (child = div.firstChild) ) {
+                    frag.appendChild(child);
+                }
+                range.insertNode(frag);
+            } else if (document.selection && document.selection.createRange) {
+                range = document.selection.createRange();
+                range.pasteHTML(html);
+            }
+        },
 
         populateFromWikipedia: function(key, cardData) {
             /*LOG*/ //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: populateFromWikipedia', key, cardData);
@@ -2317,7 +2372,7 @@ app.directive('ngSources', function() {
 app.directive('ngFormat', function() {
     return {
         restrict: 'E',
-        require: 'MainCtrl',
+        //require: 'MainCtrl',
         templateUrl: 'html/components/format.html',
         scope: {
             format: '=',
@@ -2331,7 +2386,7 @@ app.directive('ngFormat', function() {
 app.directive('ngEmbed', function() {
     return {
         restrict: 'E',
-        require: 'MainCtrl',
+        //require: 'MainCtrl',
         templateUrl: 'html/components/embed.html',
         scope: {
             editing: '=',
@@ -2340,18 +2395,31 @@ app.directive('ngEmbed', function() {
     }
 });
 
-app.directive('ngManual', function() {
+app.directive('ngManual', ['Cards', function(Cards) {
     return {
         restrict: 'E',
-        require: 'MainCtrl',
+        //require: 'MainCtrl',
         templateUrl: 'html/components/manual.html',
         scope: {
             editing: '=',
             content: '=',
             label: '@'
+        },
+        link: function(scope, element, attrs) {
+            scope.insertLink = function() {
+                // var html = 0;
+                // var myLink = scope.link;
+                // console.log(myLink);
+                // console.log(scope.content);
+                // scope.link = '';
+                Cards.insertLinkAroundSelection();
+                console.log(scope);
+                console.log(scope.content.$viewValue);
+                console.log(element.html());
+            };
         }
     }
-});
+}]);
 
 
 

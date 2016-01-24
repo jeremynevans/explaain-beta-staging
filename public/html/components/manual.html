@@ -1,4 +1,17 @@
-<div class="text structured-text" contenteditable="false" ng-model="content" ng-hide="editing" ng-init="content=label"></div>
+<div class="btn-group">
+  <button ng-click="insertLink()" class="btn btn-default dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+    <i class="fa fa-link"></i>
+  </button>
+    <!--<ul class="dropdown-menu input-dropdown">-->
+    <!--    <div class="input-group">-->
+    <!--      <input ng-model="link" type="text" class="form-control" placeholder="e.g. http://google.com">-->
+    <!--      <span class="input-group-btn">-->
+    <!--        <button ng-click="insertLink()" class="btn btn-default" type="button" >Insert</button>-->
+    <!--      </span>-->
+    <!--    </div>-->
+    <!--</ul>-->
+</div>
+<div class="text structured-text" ng-model="content" ng-hide="editing" ng-init="content=label"></div>
 <div class="text structured-text" contenteditable="true" ng-model="content" ng-show="editing" ng-init="content=label"></div>
 
 
