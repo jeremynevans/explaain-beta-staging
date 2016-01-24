@@ -21,6 +21,8 @@ var cardToOpen = ''; //This is not a good way of doing it
 var myScope;
 var mainScope;
 
+var tempElement;
+
 var app = angular.module('app', ['firebase', 'ngMaterial', 'algoliasearch', 'ngRoute', 'ngSanitize', 'ngResource', 'monospaced.elastic', 'contenteditable']); /* global angular */
 
 app.controller('MainCtrl', ['$scope', '$timeout', '$http', '$mdToast', '$mdSidenav', 'algolia', '$q', 'Cards', 'Post', function($scope, $timeout, $http, $mdToast, $mdSidenav, algolia, $q, Cards, Post) {
@@ -2406,6 +2408,15 @@ app.directive('ngManual', ['Cards', function(Cards) {
             label: '@'
         },
         link: function(scope, element, attrs) {
+            scope.manualBlur = function(thisEvent) {
+                console.log(thisEvent);
+                console.log(thisEvent.srcElement);
+                console.log(thisEvent.srcElement.innerHTML);
+                scope.editingElement = thisEvent.srcElement;
+                tempElement = thisEvent.srcElement;
+                console.log(scope.editingElement);
+                console.log('hi');
+            };
             scope.insertLink = function() {
                 // var html = 0;
                 // var myLink = scope.link;
@@ -2413,6 +2424,10 @@ app.directive('ngManual', ['Cards', function(Cards) {
                 // console.log(scope.content);
                 // scope.link = '';
                 Cards.insertLinkAroundSelection();
+                scope.editingElement.focus();
+                $(scope.editingElement).focus();
+                scope.content = scope.editingElement.innerHTML;
+                console.log(document.activeElement.innerHTML);
                 console.log(scope);
                 console.log(scope.content.$viewValue);
                 console.log(element.html());

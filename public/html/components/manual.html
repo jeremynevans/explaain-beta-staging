@@ -11,8 +11,8 @@
     <!--    </div>-->
     <!--</ul>-->
 </div>
-<div class="text structured-text" ng-model="content" ng-hide="editing" ng-init="content=label"></div>
-<div class="text structured-text" contenteditable="true" ng-model="content" ng-show="editing" ng-init="content=label"></div>
+<div class="text structured-text" contenteditable="false" ng-model="content" ng-hide="editing" ng-init="content=label"></div>
+<div class="text structured-text" contenteditable="true" ng-model="content" ng-show="editing" ng-blur="manualBlur($event)"></div>
 
 
 
