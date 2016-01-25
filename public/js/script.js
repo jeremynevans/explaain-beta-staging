@@ -25,7 +25,7 @@ var tempElement;
 
 var app = angular.module('app', ['firebase', 'ngMaterial', 'algoliasearch', 'ngRoute', 'ngSanitize', 'ngResource', 'monospaced.elastic', 'contenteditable']); /* global angular */
 
-app.controller('MainCtrl', ['$scope', '$timeout', '$http', '$mdToast', '$mdSidenav', 'algolia', '$q', 'Cards', 'Post', function($scope, $timeout, $http, $mdToast, $mdSidenav, algolia, $q, Cards, Post) {
+app.controller('MainCtrl', ['$scope', '$timeout', '$http', '$mdToast', '$mdSidenav', 'algolia', '$q', 'Cards', 'Post', '$location', function($scope, $timeout, $http, $mdToast, $mdSidenav, algolia, $q, Cards, Post, $location) {
 
     Cards.checkServiceWorks();
     mainScope = $scope;
@@ -36,6 +36,8 @@ app.controller('MainCtrl', ['$scope', '$timeout', '$http', '$mdToast', '$mdSiden
     $scope.hits = Cards.hits;
     $scope.CardsRef = Cards;
 
+
+    console.log($location.path());
 
     // Post.query(function(data) {
     //     $scope.posts = data;
@@ -71,6 +73,14 @@ app.controller('MainCtrl', ['$scope', '$timeout', '$http', '$mdToast', '$mdSiden
             // $scope.createCardFromSelection(event, 'wikipedia');
         }
     };
+    
+    
+    
+    
+    
+    $scope.$on('$locationChangeStart', function(event, next, current) {
+        Cards.openFromCardKey($location.path().substring(1), false);
+    });
 
 }]);
 
