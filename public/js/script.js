@@ -2217,6 +2217,7 @@ app.directive('ngSearch', ['Cards', function(Cards) {
         link: function(scope, element, attrs) {
             scope.placeholder = scope.index ? 'Search for ' + scope.index + '...' : 'Search...';
             var initRun = true;
+            scope.forOpening = scope.action=='openCard';
 
             scope.search = function(query) {
                 switch (scope.searchSource) {
@@ -2234,7 +2235,8 @@ app.directive('ngSearch', ['Cards', function(Cards) {
                 scope.hits = [];
                 switch (scope.action) {
                     case 'openCard':
-                        Cards.openFromCardKey(key, false);
+                        // console.log('unnecessary open');
+                        // Cards.openFromCardKey(key, false);
                         break;
                     case 'select':
                         console.log(cardData);

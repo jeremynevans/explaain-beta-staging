@@ -152,6 +152,20 @@ md-input-container.md-default-theme .md-input {
 
 /* Main Logo & Card Container */
 
+.search ul.dropdown-menu li span {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857143;
+    color: #333;
+    white-space: nowrap;
+}
+
+.search ul.dropdown-menu li span:hover {
+    background: #f5f5f5;
+}
+
 h1.logo {
     text-align: center;
     font-size: 5em;
