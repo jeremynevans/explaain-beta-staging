@@ -116,7 +116,8 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 'list',
                 'quote',
                 'embed',
-                'image'
+                'image',
+                'manual'
             ]
         },
 
@@ -1076,19 +1077,16 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
             service.cards[pos].editing = !service.cards[pos].editing;
         },
         
-        insertLinkAroundSelection: function() {
-            console.log(document.activeElement.innerHTML);
-            console.log(document.activeElement);
-            var myElement = document.activeElement;
-            var link = prompt('Enter your URL');
+        insertLinkAroundSelection: function(link, element, caretProps) {
+            // var myElement = document.activeElement;
+            // var link = prompt('Enter your URL');
+            
+            // service.revertCaret(element, caretProps);
+            
             if (link) {
                 var originalSelection = service.getSelectionHtml();
-                var newSelection = '<a href="' + link + '">' + originalSelection + '</a>';
-                console.log(newSelection);
+                var newSelection = '<a href="' + link + '" ng-click="openCard("' + link + '")>' + originalSelection + '</a>';
                 service.replaceSelectionWithHtml(newSelection);
-                var newContent = document.activeElement.innerHTML;
-                console.log(newContent);
-                return newContent;
             }
         },
         
@@ -1130,6 +1128,69 @@ app.service('Cards', ['$rootScope', '$q', '$http', function($rootScope, $q, $htt
                 range.pasteHTML(html);
             }
         },
+        
+        saveSelection: function() {
+            if (window.getSelection) {
+                sel = window.getSelection();
+                if (sel.getRangeAt && sel.rangeCount) {
+                    return sel.getRangeAt(0);
+                }
+            } else if (document.selection && document.selection.createRange) {
+                return document.selection.createRange();
+            }
+            return null;
+        },
+        
+        restoreSelection: function(range) {
+            if (range) {
+                if (window.getSelection) {
+                    sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                } else if (document.selection && range.select) {
+                    range.select();
+                }
+            }
+        },
+        
+        // getCaretProperties: function(element) {
+        //     var props = {};
+        //     props.right = service.getCaretCharacterOffsetWithin(element);
+        //     props.length = service.HTMLToText(service.getSelectionHtml()).length;
+        //     props.left = props.right - props.length;
+        //     return props;
+        // },
+        
+        // HTMLToText: function(html)
+        // {
+        //   var tmp = document.createElement("DIV");
+        //   tmp.innerHTML = html;
+        //   return tmp.textContent || tmp.innerText || "";
+        // },
+        
+        // getCaretCharacterOffsetWithin: function(element) {
+        //     var caretOffset = 0;
+        //     var doc = element.ownerDocument || element.document;
+        //     var win = doc.defaultView || doc.parentWindow;
+        //     var sel;
+        //     if (typeof win.getSelection != "undefined") {
+        //         sel = win.getSelection();
+        //         if (sel.rangeCount > 0) {
+        //             var range = win.getSelection().getRangeAt(0);
+        //             var preCaretRange = range.cloneRange();
+        //             preCaretRange.selectNodeContents(element);
+        //             preCaretRange.setEnd(range.endContainer, range.endOffset);
+        //             caretOffset = preCaretRange.toString().length;
+        //         }
+        //     } else if ( (sel = doc.selection) && sel.type != "Control") {
+        //         var textRange = sel.createRange();
+        //         var preCaretTextRange = doc.body.createTextRange();
+        //         preCaretTextRange.moveToElementText(element);
+        //         preCaretTextRange.setEndPoint("EndToEnd", textRange);
+        //         caretOffset = preCaretTextRange.text.length;
+        //     }
+        //     return caretOffset;
+        // },
 
         populateFromWikipedia: function(key, cardData) {
             /*LOG*/ //console.log((Date.now() - currentTimestamp), currentTimestamp = Date.now(), 'function: populateFromWikipedia', key, cardData);
@@ -2166,7 +2227,8 @@ app.directive('ngSearch', ['Cards', function(Cards) {
                         Cards.openFromCardKey(key, false);
                         break;
                     case 'select':
-                        scope.resultKey = cardData.identity;
+                        console.log(cardData);
+                        scope.resultKey = cardData.objectID; //Changed from cardData.identity because this won't be available from an Algolia search anyway
                         scope.resultTitle = cardData.title;
                         element.find('input').attr("placeholder", scope.resultTitle);
                         break;
@@ -2408,34 +2470,66 @@ app.directive('ngManual', ['Cards', function(Cards) {
             label: '@'
         },
         link: function(scope, element, attrs) {
+            
+
             scope.manualBlur = function(thisEvent) {
-                console.log(thisEvent);
-                console.log(thisEvent.srcElement);
-                console.log(thisEvent.srcElement.innerHTML);
-                scope.editingElement = thisEvent.srcElement;
-                tempElement = thisEvent.srcElement;
-                console.log(scope.editingElement);
-                console.log('hi');
+                scope.editingElement = thisEvent.srcElement; //Move outside this function to happen initially?
+                tempElement = thisEvent.srcElement; //Just for debugging
+                
+                scope.selectionRange = Cards.saveSelection();
+                console.log(scope.selectionRange);
+                
+                // scope.caretProps = Cards.getCaretProperties(scope.editingElement);
+                // console.log(scope.caretProps);
             };
             scope.insertLink = function() {
                 // var html = 0;
                 // var myLink = scope.link;
-                // console.log(myLink);
-                // console.log(scope.content);
-                // scope.link = '';
-                Cards.insertLinkAroundSelection();
-                scope.editingElement.focus();
-                $(scope.editingElement).focus();
+                console.log(scope.linkRef);
+                scope.link = '#' + scope.linkRef;
+                console.log(scope.link);
+                console.log(scope.content);
+                Cards.restoreSelection(scope.selectionRange);
+                Cards.insertLinkAroundSelection(scope.link);
+                // scope.editingElement.focus();
+                // $(scope.editingElement).focus();
                 scope.content = scope.editingElement.innerHTML;
-                console.log(document.activeElement.innerHTML);
-                console.log(scope);
-                console.log(scope.content.$viewValue);
-                console.log(element.html());
+                scope.link = '';
+                console.log(scope.link);
+                console.log(scope.content);
+                
+                
+                var externalLinks = document.querySelectorAll('a[href^="#"]');
+                console.log('hi');
+                for (i = 0; i < externalLinks.length; ++i) {
+                    console.log(i);
+                    var link = externalLinks[i];
+                    link.addEventListener('click', function(e) {
+                        console.log(e.target.href);
+                        console.log(e.target.href.split('#')[1]);
+                        scope.openCard(e.target.href.split('#')[1], false);
+                    });
+                }
+            };
+            scope.openCard = function(cardKey, edit) {
+                return Cards.openFromCardKey(cardKey, edit); //This is obviously different from other formats where identityKey is used
             };
         }
     }
 }]);
 
+
+
+app.directive('a', function () {
+    return {
+        restrict: 'E',
+        link: function (scope, elem, attrs) {
+            elem.bind('click', function() {
+                console.log('link clicked');
+            });
+        }
+    }
+})
 
 
 
