@@ -2212,10 +2212,11 @@ app.directive('ngSearch', ['Cards', function(Cards) {
             filter: '@',
             action: '@',
             resultKey: '=',
-            format: '@'
+            format: '@',
+            label: '@'
         },
         link: function(scope, element, attrs) {
-            scope.placeholder = scope.index ? 'Search for ' + scope.index + '...' : 'Search...';
+            scope.placeholder = scope.label || 'Search...';
             var initRun = true;
             scope.forOpening = scope.action=='openCard';
 

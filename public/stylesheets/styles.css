@@ -152,6 +152,11 @@ md-input-container.md-default-theme .md-input {
 
 /* Main Logo & Card Container */
 
+.search.input-group-lg {
+    margin: 0 0 20px 0;
+    width:100%;
+}
+
 .search ul.dropdown-menu li span {
     display: block;
     padding: 3px 20px;

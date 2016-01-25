@@ -42,7 +42,7 @@
                 <h4 class="modal-title">Welcome to Explaain!</h4>
               </div>
               <div class="modal-body">
-                <p>Sign in to your team, or proceed to the public version of Explaain&hellip;</p>
+                <p>Sign into your team, or proceed to the public version of Explaain&hellip;</p>
               </div>
               <div class="modal-footer" style="text-align: center;">
                 <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="bootUpServices(true)">Sign into your team</button>
@@ -96,7 +96,7 @@
             </ul>
         </div>
         <ul class="cards">
-            <ng-search source="Algolia" index="cards" action="openCard" format="main"></ng-search>
+            <ng-search source="Algolia" label="Search for cards..." action="openCard" format="main"></ng-search>
             <!--<form ng-submit="$event.preventDefault()">-->
             <!--    <md-autocomplete md-no-cache="true" md-min-length="1" md-autoselect="false" md-selected-item="ctrl.selectedItem" md-search-text-change="search(query)" md-search-text="query" md-selected-item-change="openFromCardKey(card.objectID);" md-items="card in hits"-->
             <!--    md-item-text="card.title" md-floating-label="Search for cards..." style="font-size: 26px; font-weight: 300;">-->

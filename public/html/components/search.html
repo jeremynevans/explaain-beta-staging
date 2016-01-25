@@ -1,4 +1,4 @@
-<div class="input-group dropdown search" ng-class="{'input-group-lg': format=='main', 'open': query.length}" style="margin: 0 0 20px 0;width:100%;">
+<div class="input-group dropdown search" ng-class="{'input-group-lg': format=='main', 'open': query.length}">
     <input type="text" placeholder="{{placeholder}}" ng-model="query" ng-change="search(query)" ng-focus="setFocus(true)" ng-blur="setFocus(false)" class="form-control" style="border-radius:6px;">
     <ul class="dropdown-menu" ng-if="focussed" aria-labelledby="dropdownMenu1" style="z-index: 10000">
         <li ng-if="hits.length == 0"><a>No cards found</a></li>
